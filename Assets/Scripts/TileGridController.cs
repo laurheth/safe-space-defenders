@@ -52,10 +52,10 @@ public class TileGridController : MonoBehaviour {
     }
 
     // Djriska or whomever's algorithm, easier to write imo
-    public void getPath(Vector3Int startPos_w, Vector3Int endPos_w, List<Vector3Int> steps) {
+    public void getPath(Vector3Int startPos_w, Vector3Int endPos_w, List<Vector3Int> steps, int maxDist=50) {
         startPos_w[2] = 0;
         endPos_w[2] = 0;
-        int maxDist = 100;
+        //int maxDist = 100;
         int i, j,ii,jj;
         int[,] dists = new int[xsize, ysize];
         for (i = 0; i < xsize;i++) {
