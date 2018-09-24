@@ -7,12 +7,14 @@ public class TileGridController : MonoBehaviour {
     
     public Tilemap tileMap;
     public Tilemap collisionMap;
+    GridLayout grid;
     int xsize, ysize;
     int xmin, ymin;
     int xmax, ymax;
     bool[,] passable;
 	// Use this for initialization
 	void Start () {
+        grid = GetComponent<GridLayout>();
         xsize = collisionMap.size.x;
         xmin = collisionMap.cellBounds.xMin;
         xmax = collisionMap.cellBounds.xMax;
@@ -22,7 +24,7 @@ public class TileGridController : MonoBehaviour {
         passable = new bool[xsize,ysize];
         for (int i = 0; i < xsize;i++) {
             for (int j = 0; j < ysize;j++) {
-
+                //passable[i+xmin,j+ymin]=valid
                 if (collisionMap.HasTile(new Vector3Int(i+xmin,j+ymin,0))) {
                     passable[i, j] = false;
                 }
@@ -36,6 +38,19 @@ public class TileGridController : MonoBehaviour {
 
 	}
 	
+    public bool validPos(Vector3 pos_w) {
+        Vector3Int pos = grid.WorldToCell(pos_w);
+        if (pos.x > xmin && pos.x < xmax && pos.y > ymin && pos.y < ymax)
+            {
+            pos[2] = 0;
+            return passable[pos.x - xmin, pos.y - ymin] && tileMap.HasTile(pos);
+        //return !collisionMap.HasTile(pos) && tileMap.HasTile(pos);
+        }
+        else {
+            return false;
+        }
+    }
+
     // Djriska or whomever's algorithm, easier to write imo
     public void getPath(Vector3Int startPos_w, Vector3Int endPos_w, List<Vector3Int> steps) {
         startPos_w[2] = 0;
@@ -110,6 +125,7 @@ public class TileGridController : MonoBehaviour {
                 currentPos = nextStep;
                 breaker++;
             }
+            steps.Add(currentPos + offset);
         }
     }
 

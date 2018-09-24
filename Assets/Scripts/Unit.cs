@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Unit : MonoBehaviour {
     public Vector3 offset;
+    public Vector3 moffset;
     public float pathcloseness;
     //Vector3Int position;
     Vector3 currentVect;
@@ -44,7 +45,7 @@ public class Unit : MonoBehaviour {
     // Update is called once per frame
     void Update () {
         if (Input.GetMouseButtonDown(0)) {
-            Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition)-moffset;
             gridController.getPath(Vector3Int.RoundToInt(transform.position-offset), Vector3Int.RoundToInt(worldPoint), steps);
 
         }
