@@ -34,9 +34,9 @@ public class ActionMenu : MonoBehaviour {
 
         ClearOptions();
         Unit unit = thisunit.GetComponent<Unit>();
-        foreach (string str in unit.actions) {
+        foreach (Unit.Action act in unit.actions) {
             GameObject newoption=Instantiate(actionprefab, transform);
-            newoption.GetComponent<ActionOption>().SetText("> "+str);
+            newoption.GetComponent<ActionOption>().SetText("> "+act.GetName());
         }
         UpdateList();
     }
