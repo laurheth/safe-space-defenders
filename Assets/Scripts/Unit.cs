@@ -6,6 +6,7 @@ public class Unit : MonoBehaviour {
     public Vector3 offset;
     public Vector3 moffset;
     public float pathcloseness;
+    public string[] actions;
     //Vector3Int position;
     Vector3 currentVect;
     public float speed;

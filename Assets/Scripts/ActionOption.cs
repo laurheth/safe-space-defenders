@@ -8,10 +8,13 @@ public class ActionOption : MonoBehaviour, IPointerClickHandler {
 
     Text txt;
     ActionMenu actionMenu;
-	// Use this for initialization
-	void Start () {
-        actionMenu = transform.parent.gameObject.GetComponent<ActionMenu>();
+    // Use this for initialization
+    private void Awake()
+    {
         txt = GetComponent<Text>();
+    }
+    void Start () {
+        actionMenu = transform.parent.gameObject.GetComponent<ActionMenu>();
 	}
 	
     public void SelectThis() {
@@ -28,5 +31,9 @@ public class ActionOption : MonoBehaviour, IPointerClickHandler {
     public void OnPointerClick(PointerEventData pointerEventData) {
         //Debug.Log(txt.text);
         actionMenu.SelectMe(gameObject);
+    }
+
+    public void SetText(string str) {
+        txt.text = str;
     }
 }

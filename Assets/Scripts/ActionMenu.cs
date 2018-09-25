@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ActionMenu : MonoBehaviour {
     GameObject selected;
+    public GameObject actionprefab;
     List<GameObject> options;
 	// Use this for initialization
 	void Start () {
@@ -17,6 +18,27 @@ public class ActionMenu : MonoBehaviour {
         foreach (Transform child in transform) {
             options.Add(child.gameObject);
         }
+    }
+
+    public void ClearOptions() {
+        foreach (GameObject obj in options)
+        {
+            obj.transform.parent = null;
+            Destroy(obj);
+        }
+        selected = null;
+        options.Clear();
+    }
+
+    public void DefineOptions(GameObject thisunit) {
+
+        ClearOptions();
+        Unit unit = thisunit.GetComponent<Unit>();
+        foreach (string str in unit.actions) {
+            GameObject newoption=Instantiate(actionprefab, transform);
+            newoption.GetComponent<ActionOption>().SetText("> "+str);
+        }
+        UpdateList();
     }
 
     private void Update()

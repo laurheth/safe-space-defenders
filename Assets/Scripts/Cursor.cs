@@ -14,8 +14,11 @@ public class Cursor : MonoBehaviour {
     bool validpath;
     SpriteRenderer srend;
     List<Vector3Int> linesteps;
+    public GameObject actMenu;
+    ActionMenu actionMenu;
 	// Use this for initialization
 	void Start () {
+        actionMenu = actMenu.GetComponent<ActionMenu>();
         validpath = false;
         linesteps = new List<Vector3Int>();
         line = GetComponent<LineRenderer>();
@@ -100,6 +103,7 @@ public class Cursor : MonoBehaviour {
                         {
                             unit = hit.transform.gameObject;
                             currentUnit = unit.GetComponent<Unit>();
+                            actionMenu.DefineOptions(unit);
                         }
                     }
                 }
