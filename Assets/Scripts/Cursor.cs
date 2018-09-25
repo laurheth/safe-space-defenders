@@ -55,14 +55,14 @@ public class Cursor : MonoBehaviour {
                     }
                 }
                 else {
-                    srend.color = Color.red;
+                    srend.color = Color.clear;
                     line.enabled = false;
                     oldpos = Vector3Int.zero;
                 }
             }
             else
             {
-                srend.color = Color.red;
+                srend.color = Color.clear;
                 line.enabled = false;
                 oldpos = Vector3Int.zero;
             }
