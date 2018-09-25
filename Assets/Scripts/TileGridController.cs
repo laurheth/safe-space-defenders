@@ -12,8 +12,15 @@ public class TileGridController : MonoBehaviour {
     int xmin, ymin;
     int xmax, ymax;
     bool[,] passable;
+    List<Transform> Entities;
 	// Use this for initialization
 	void Start () {
+        Entities = new List<Transform>();
+
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Unit")) {
+            Entities.Add(obj.transform);
+        }
+
         grid = GetComponent<GridLayout>();
         xsize = collisionMap.size.x;
         xmin = collisionMap.cellBounds.xMin;
@@ -43,7 +50,7 @@ public class TileGridController : MonoBehaviour {
         if (pos.x > xmin && pos.x < xmax && pos.y > ymin && pos.y < ymax)
             {
             pos[2] = 0;
-            return passable[pos.x - xmin, pos.y - ymin] && tileMap.HasTile(pos);
+            return passable[pos.x - xmin, pos.y - ymin] && tileMap.HasTile(pos) && !HasObj(pos.x,pos.y);
         //return !collisionMap.HasTile(pos) && tileMap.HasTile(pos);
         }
         else {
@@ -69,7 +76,7 @@ public class TileGridController : MonoBehaviour {
         Vector3Int startPos = startPos_w - offset;
         Vector3Int endPos = endPos_w - offset;
 
-        Debug.Log(startPos + " " + endPos + " " + offset);
+        //Debug.Log(startPos + " " + endPos + " " + offset);
 
         dists[endPos[0], endPos[1]] = 0;
         int currentDist = 0;
@@ -82,9 +89,14 @@ public class TileGridController : MonoBehaviour {
             {
                 for (j = 1; j < ysize-1; j++)
                 {
-                    if (!passable[i,j]) {
-                        continue;
+                    if (i != startPos.x || j != startPos.y)
+                    {
+                        if (!passable[i, j] || HasObj(i + xmin, j + ymin))
+                        {
+                            continue;
+                        }
                     }
+
                     currentDist = dists[i, j];
                     for (ii = -1; ii < 2;ii++) {
                         for (jj = -1; jj < 2; jj++)
@@ -127,6 +139,16 @@ public class TileGridController : MonoBehaviour {
             }
             steps.Add(currentPos + offset);
         }
+    }
+
+    bool HasObj(int x, int y) {
+
+        foreach (Transform trans in Entities) {
+            if (Mathf.FloorToInt(trans.position.x)==x && Mathf.FloorToInt(trans.position.y) == y) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /*

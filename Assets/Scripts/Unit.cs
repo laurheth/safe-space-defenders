@@ -9,16 +9,20 @@ public class Unit : MonoBehaviour {
     //Vector3Int position;
     Vector3 currentVect;
     public float speed;
+    public int movesPerTurn;
+    int movesLeft;
     Rigidbody2D rb;
     TileGridController gridController;
     List<Vector3Int> steps;
 	// Use this for initialization
 	void Start () {
+        movesLeft = movesPerTurn;
         currentVect = Vector3.zero;
         rb = GetComponent<Rigidbody2D>();
         steps = new List<Vector3Int>();
         //position = Vector3Int.RoundToInt(transform.position - offset);
         gridController = transform.parent.gameObject.GetComponent<TileGridController>();
+        //gridController.blockPosition()
 	}
 
     private void FixedUpdate()
@@ -43,11 +47,27 @@ public class Unit : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update () {
+    /*void Update () {
         if (Input.GetMouseButtonDown(0)) {
             Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition)-moffset;
             gridController.getPath(Vector3Int.RoundToInt(transform.position-offset), Vector3Int.RoundToInt(worldPoint), steps);
 
         }
-	}
+	}*/
+
+    public bool MovesLeft() {
+        return movesLeft > 0;
+    }
+
+    public bool readyToMove() {
+        return steps.Count == 0;
+    }
+
+    public void GiveMoveOrder(List <Vector3Int> newsteps) {
+        steps.Clear();
+        movesLeft--;
+        for (int i = 0; i < newsteps.Count;i++) {
+            steps.Add(newsteps[i]);
+        }
+    }
 }
