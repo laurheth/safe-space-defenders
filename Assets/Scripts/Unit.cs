@@ -12,6 +12,8 @@ public class Unit : MonoBehaviour
     //Vector3Int position;
     Vector3 currentVect;
     public float speed;
+    public int MaxMorale;
+    int Morale;
     public int movesPerTurn;
     int movesLeft;
     Rigidbody2D rb;
@@ -20,6 +22,7 @@ public class Unit : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        Morale = MaxMorale;
         actions = new List<Action>();
         movesLeft = movesPerTurn;
         currentVect = Vector3.zero;
@@ -28,8 +31,8 @@ public class Unit : MonoBehaviour
         //position = Vector3Int.RoundToInt(transform.position - offset);
         gridController = transform.parent.gameObject.GetComponent<TileGridController>();
         //gridController.blockPosition()
-        actions.Add(new Action("Move", 6, ActType.Movement, 0));
-        actions.Add(new Action("Blow vuvuzela", 6, ActType.Cone, 2));
+        actions.Add(new Action("Move", 9, ActType.Movement, 0));
+        actions.Add(new Action("Blow vuvuzela", 6, ActType.Cone, 10));
         actions.Add(new Action("Finger guns", 9, ActType.Targetted, 6));
     }
 
@@ -109,6 +112,32 @@ public class Unit : MonoBehaviour
         }
         public int GetDamage() {
             return damage;
+        }
+    }
+
+    public void Damage(int dmg) {
+        Morale -= dmg;
+        if (Morale <=0) {
+            gridController.RemoveEntity(gameObject);
+            Destroy(gameObject);
+        }
+    }
+
+    public void PerformAction(Action todo, Vector3Int target) {
+        movesLeft--;
+        switch (todo.GetActType()) {
+            default:
+            case ActType.Targetted:
+                GameObject targetMe = gridController.GetObject(target.x,target.y, gameObject);
+                targetMe.GetComponent<Unit>().Damage(todo.GetDamage());
+                break;
+            case ActType.Cone:
+                List<Transform> transes = gridController.GetInCone(Vector3Int.FloorToInt(transform.position),
+                                         target, todo.GetRange());
+                foreach (Transform trans in transes) {
+                    trans.gameObject.GetComponent<Unit>().Damage(todo.GetDamage());
+                }
+                break;
         }
     }
 }

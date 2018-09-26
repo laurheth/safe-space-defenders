@@ -13,11 +13,17 @@ public class TileGridController : MonoBehaviour {
     int xmax, ymax;
     bool[,] passable;
     List<Transform> Entities;
+    //List<>
 	// Use this for initialization
 	void Start () {
         Entities = new List<Transform>();
 
         foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Unit")) {
+            Entities.Add(obj.transform);
+        }
+
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("EnemyUnit"))
+        {
             Entities.Add(obj.transform);
         }
 
@@ -45,17 +51,64 @@ public class TileGridController : MonoBehaviour {
 
 	}
 	
-    public bool validPos(Vector3 pos_w) {
+    public bool validPos(Vector3 pos_w, Unit.Action todo) {
+        bool skipentities = true;
+        bool onlyentities = false;
+        if (todo != null)
+        {
+            if (todo.GetActType() != Unit.ActType.Movement)
+            {
+                skipentities = false;
+            }
+            if (todo.GetActType() == Unit.ActType.Targetted || todo.GetActType() == Unit.ActType.Melee)
+            {
+                onlyentities = true;
+
+            }
+            //}
+            //if (todo)
+            //Debug.Log(todo.GetActType());
+        }
         Vector3Int pos = grid.WorldToCell(pos_w);
         if (pos.x > xmin && pos.x < xmax && pos.y > ymin && pos.y < ymax)
             {
             pos[2] = 0;
-            return passable[pos.x - xmin, pos.y - ymin] && tileMap.HasTile(pos) && !HasObj(pos.x,pos.y);
+            if (!onlyentities)
+            {
+                return passable[pos.x - xmin, pos.y - ymin] && tileMap.HasTile(pos) && (!skipentities || !HasObj(pos.x, pos.y));
+            }
+            else {
+                return HasObj(pos.x, pos.y);
+            }
         //return !collisionMap.HasTile(pos) && tileMap.HasTile(pos);
         }
         else {
             return false;
         }
+    }
+
+    public bool CheckLine(Vector3Int startPos_w, Vector3Int endPos_w, int maxdist=20, bool checkentities=false) {
+        Vector3Int offset = new Vector3Int(xmin, ymin, 0);
+        Vector3Int startPos = startPos_w - offset;
+        Vector3Int endPos = endPos_w - offset;
+        Vector3 checkPos = startPos_w - offset;
+        Vector3 step = (new Vector3(endPos_w.x - startPos_w.x,
+                                   endPos_w.y - startPos_w.y,
+                                    endPos_w.z - startPos_w.z)).normalized;
+        if ((startPos - endPos).magnitude > maxdist) { return true; }
+        int i, j;
+        int breaker=0;
+        while (Vector3Int.RoundToInt(checkPos) != endPos && breaker<maxdist) {
+            breaker++;
+            checkPos += step;
+            i = Mathf.RoundToInt(checkPos.x);
+            j = Mathf.RoundToInt(checkPos.y);
+            //Debug.Log(checkPos + " " + passable[i, j]);
+            if (i == startPos.x && j == startPos.y) { continue; }
+            if (!passable[i, j]) { return true; }
+            if (checkentities && HasObj(i + xmin, j + ymin)) { return true; }
+        }
+        return false;
     }
 
     // Djriska or whomever's algorithm, easier to write imo
@@ -64,7 +117,7 @@ public class TileGridController : MonoBehaviour {
         endPos_w[2] = 0;
         //int maxDist = 100;
         int i, j,ii,jj;
-        int[,] dists = new int[xsize, ysize];
+        float[,] dists = new float[xsize, ysize];
         for (i = 0; i < xsize;i++) {
             for (j = 0; j < ysize;j++) {
 
@@ -79,9 +132,10 @@ public class TileGridController : MonoBehaviour {
         //Debug.Log(startPos + " " + endPos + " " + offset);
 
         dists[endPos[0], endPos[1]] = 0;
-        int currentDist = 0;
+        float currentDist = 0;
         int breaker = 0;
-        while (dists[startPos[0], startPos[1]] == maxDist && breaker < maxDist)
+        float steplength = 0;
+        while (Mathf.Approximately(dists[startPos[0], startPos[1]], maxDist) && breaker < maxDist)
         {
             breaker++;
             //currentDist++;
@@ -101,9 +155,10 @@ public class TileGridController : MonoBehaviour {
                     for (ii = -1; ii < 2;ii++) {
                         for (jj = -1; jj < 2; jj++)
                         {
-                            if (dists[i+ii, j+jj]+Mathf.Abs(ii)+Mathf.Abs(jj) < currentDist)
+                            steplength = Mathf.Sqrt(Mathf.Pow(ii, 2) + Mathf.Pow(jj, 2));
+                            if (dists[i+ii, j+jj]+steplength < currentDist)
                             {
-                                dists[i, j] = dists[i + ii, j + jj] + Mathf.Abs(ii) + Mathf.Abs(jj);
+                                dists[i, j] = dists[i + ii, j + jj] + steplength;
                                 currentDist = dists[i, j];
                             }
                         }
@@ -111,12 +166,12 @@ public class TileGridController : MonoBehaviour {
                 }
             }
         }
-        if (dists[startPos[0], startPos[1]] != maxDist)
+        if (!Mathf.Approximately(dists[startPos[0], startPos[1]],maxDist))
         {
 
             Vector3Int currentPos = startPos;
             Vector3Int nextStep = startPos;
-            int distval;
+            float distval;
             breaker = 0;
             while (currentPos != endPos && breaker < maxDist)
             {
@@ -149,6 +204,55 @@ public class TileGridController : MonoBehaviour {
             }
         }
         return false;
+    }
+
+    public GameObject GetObject(int x, int y, GameObject requester=null) {
+        float mindist = 1000;
+        GameObject toReturn=null;
+        float currentdist = 1000;
+        foreach (Transform trans in Entities)
+        {
+            currentdist = Mathf.Sqrt(Mathf.Pow(x - Mathf.FloorToInt(trans.position.x), 2f)
+                                   + Mathf.Pow(y - Mathf.FloorToInt(trans.position.y), 2f));
+            if (currentdist < mindist && trans.gameObject != requester) {
+                mindist = currentdist;
+                toReturn = trans.gameObject;
+            }
+        }
+        return toReturn;
+    }
+
+    public List<Transform> GetInCone(Vector3Int startpos_w, Vector3Int targpos_w,int range) {
+        List<Transform> toReturn = new List<Transform>();
+        Vector3 startpos = new Vector3(startpos_w[0], startpos_w[1], 0);
+        Vector3 targpos = new Vector3(targpos_w[0], targpos_w[1], 0);
+        Vector3 vect = targpos - startpos;
+        Vector3 perpvect = new Vector3(-vect[1], vect[0], 0);
+        Vector3 p1 = startpos;
+        Vector3 p2=startpos+(vect.normalized * range) - perpvect.normalized * range / 2f;
+        Vector3 p3=startpos + (vect.normalized * range) + perpvect.normalized * range / 2f;
+        Vector3 v1 = p2 - p1;
+        Vector3 v2 = p3 - p2;
+        Vector3 v3 = p1 - p3;
+        Vector3 v1p, v2p, v3p;
+        foreach(Transform trans in Entities) {
+            v1p = trans.position - p1;
+            v2p = trans.position - p2;
+            v3p = trans.position - p3;
+            if (Vector3.Dot(v1,v1p)>=0 && Vector3.Dot(v2, v2p) >= 0 && Vector3.Dot(v3, v3p) >= 0) {
+                if (!CheckLine(startpos_w,Vector3Int.FloorToInt(trans.position),range)) {
+                    toReturn.Add(trans);
+                }
+            }
+        }
+
+        return toReturn;
+    }
+
+
+
+    public void RemoveEntity(GameObject obj) {
+        Entities.Remove(obj.transform);
     }
 
     /*

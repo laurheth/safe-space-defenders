@@ -7,6 +7,7 @@ using UnityEngine.EventSystems;
 public class ActionOption : MonoBehaviour, IPointerClickHandler {
 
     Text txt;
+    Unit.Action action;
     ActionMenu actionMenu;
     // Use this for initialization
     private void Awake()
@@ -35,5 +36,13 @@ public class ActionOption : MonoBehaviour, IPointerClickHandler {
 
     public void SetText(string str) {
         txt.text = str;
+    }
+
+    public void SetAction(Unit.Action act) {
+        action = act;
+    }
+
+    public Unit.Action GetAction() {
+        return action;
     }
 }

@@ -6,10 +6,13 @@ public class ActionMenu : MonoBehaviour {
     GameObject selected;
     public GameObject actionprefab;
     List<GameObject> options;
+    Cursor cursor;
+    public GameObject cursobj;
 	// Use this for initialization
 	void Start () {
         selected = null;
         options = new List<GameObject>();
+        cursor = cursobj.GetComponent<Cursor>();
         UpdateList();
 	}
 
@@ -37,6 +40,7 @@ public class ActionMenu : MonoBehaviour {
         foreach (Unit.Action act in unit.actions) {
             GameObject newoption=Instantiate(actionprefab, transform);
             newoption.GetComponent<ActionOption>().SetText("> "+act.GetName());
+            newoption.GetComponent<ActionOption>().SetAction(act);
         }
         UpdateList();
     }
@@ -66,5 +70,6 @@ public class ActionMenu : MonoBehaviour {
         }
         selected = option;
         selected.GetComponent<ActionOption>().SelectThis();
+        cursor.SetAction(selected.GetComponent<ActionOption>().GetAction());
     }
 }

@@ -12,12 +12,15 @@ public class Cursor : MonoBehaviour {
     Vector3Int oldpos;
     Vector3Int newpos;
     bool validpath;
+    //bool snaptoentity;
     SpriteRenderer srend;
     List<Vector3Int> linesteps;
     public GameObject actMenu;
     ActionMenu actionMenu;
+    Unit.Action currentAction;
 	// Use this for initialization
 	void Start () {
+        //snaptoentity = false;
         actionMenu = actMenu.GetComponent<ActionMenu>();
         validpath = false;
         linesteps = new List<Vector3Int>();
@@ -35,12 +38,38 @@ public class Cursor : MonoBehaviour {
         if (oldpos != newpos)
         {
             validpath = false;
-            if (gridController.validPos(transform.position))
+            if (gridController.validPos(transform.position,currentAction))
             {
-                if (unit != null && currentUnit.readyToMove()) {
+                if (unit != null && currentAction != null && currentUnit.readyToMove()) {
                     srend.color = Color.cyan;
                     linesteps.Clear();
-                    gridController.getPath(Vector3Int.FloorToInt(unit.transform.position),newpos,linesteps,maxdist);
+
+                    // Define path. Getpath does pathfinding (movement + melee)
+                    // Raycast otherwise
+                    // public enum ActType { Movement, Melee, Targetted, Cone, LineOfSight, Grenade };
+                    switch(currentAction.GetActType()) {
+                        default:
+                            /*if(!Physics2D.Linecast(
+                                new Vector2(unit.transform.position.x, unit.transform.position.y),
+                                new Vector2(newpos.x, newpos.y),
+                                LayerMask.GetMask("Default"))) {*/
+                            /*Debug.Log(Physics2D.Linecast(
+                                new Vector2(unit.transform.position.x, unit.transform.position.y),
+                                new Vector2(newpos.x+offset[0], newpos.y+offset[1]),*/
+                            if (!gridController.CheckLine(Vector3Int.FloorToInt(unit.transform.position),
+                                                   newpos,maxdist)) {
+                                //LayerMask.GetMask("Default")).transform.name);
+                                linesteps.Add(Vector3Int.FloorToInt(unit.transform.position));
+                                linesteps.Add(newpos);
+                            }
+                            break;
+                        case Unit.ActType.Melee:
+                        case Unit.ActType.Movement:
+                            gridController.getPath(Vector3Int.FloorToInt(unit.transform.position),
+                                                   newpos, linesteps, maxdist);
+                            break;
+                    }
+
                     if (linesteps.Count > 0)
                     {
                         line.enabled = true;
@@ -79,11 +108,18 @@ public class Cursor : MonoBehaviour {
         }
         if (Input.GetMouseButtonDown(0))
         {
-            if (unit != null && validpath)
+            if (unit != null && currentAction != null && validpath)
             {
                 Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition) - offset;
-                gridController.getPath(Vector3Int.RoundToInt(transform.position - offset), Vector3Int.RoundToInt(worldPoint), linesteps);
-                currentUnit.GiveMoveOrder(linesteps);
+                if (currentAction.GetActType() == Unit.ActType.Movement
+                    || currentAction.GetActType() == Unit.ActType.Melee)
+                {
+                    gridController.getPath(Vector3Int.RoundToInt(transform.position - offset), Vector3Int.RoundToInt(worldPoint), linesteps);
+                    currentUnit.GiveMoveOrder(linesteps);
+                }
+                else {
+                    currentUnit.PerformAction(currentAction, Vector3Int.RoundToInt(worldPoint));
+                }
                 srend.color = Color.red;
                 line.enabled = false;
                 oldpos = Vector3Int.zero;
@@ -110,4 +146,9 @@ public class Cursor : MonoBehaviour {
             }
         }
 	}
+
+    public void SetAction(Unit.Action act) {
+        currentAction = act;
+        maxdist = currentAction.GetRange();
+    }
 }
