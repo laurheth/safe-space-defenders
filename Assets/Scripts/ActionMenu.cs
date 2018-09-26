@@ -47,7 +47,7 @@ public class ActionMenu : MonoBehaviour {
 
     private void Update()
     {
-        if (Input.GetButtonDown("Fire2")) {
+        if (Input.GetButtonDown("Fire2") && options.Count>0) {
             if (selected == null || !options.Contains(selected)) {
                 selected = options[0];
             }

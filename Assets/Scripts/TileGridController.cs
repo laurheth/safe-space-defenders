@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class TileGridController : MonoBehaviour {
-    
+public class TileGridController : MonoBehaviour
+{
+
     public Tilemap tileMap;
     public Tilemap collisionMap;
     GridLayout grid;
@@ -14,11 +15,13 @@ public class TileGridController : MonoBehaviour {
     bool[,] passable;
     List<Transform> Entities;
     //List<>
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start()
+    {
         Entities = new List<Transform>();
 
-        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Unit")) {
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Unit"))
+        {
             Entities.Add(obj.transform);
         }
 
@@ -34,14 +37,18 @@ public class TileGridController : MonoBehaviour {
         ysize = collisionMap.size.y;
         ymin = collisionMap.cellBounds.yMin;
         ymax = collisionMap.cellBounds.yMax;
-        passable = new bool[xsize,ysize];
-        for (int i = 0; i < xsize;i++) {
-            for (int j = 0; j < ysize;j++) {
+        passable = new bool[xsize, ysize];
+        for (int i = 0; i < xsize; i++)
+        {
+            for (int j = 0; j < ysize; j++)
+            {
                 //passable[i+xmin,j+ymin]=valid
-                if (collisionMap.HasTile(new Vector3Int(i+xmin,j+ymin,0))) {
+                if (collisionMap.HasTile(new Vector3Int(i + xmin, j + ymin, 0)))
+                {
                     passable[i, j] = false;
                 }
-                else {
+                else
+                {
                     passable[i, j] = true;
                 }
                 //Debug.Log(i + " " + j + " "+passable[i,j]);
@@ -49,9 +56,10 @@ public class TileGridController : MonoBehaviour {
             }
         }
 
-	}
-	
-    public bool validPos(Vector3 pos_w, Unit.Action todo) {
+    }
+
+    public bool validPos(Vector3 pos_w, Unit.Action todo)
+    {
         bool skipentities = true;
         bool onlyentities = false;
         if (todo != null)
@@ -71,29 +79,34 @@ public class TileGridController : MonoBehaviour {
         }
         Vector3Int pos = grid.WorldToCell(pos_w);
         if (pos.x > xmin && pos.x < xmax && pos.y > ymin && pos.y < ymax)
-            {
+        {
             pos[2] = 0;
             if (!onlyentities)
             {
                 return passable[pos.x - xmin, pos.y - ymin] && tileMap.HasTile(pos) && (!skipentities || !HasObj(pos.x, pos.y));
             }
-            else {
-                if (todo.GetTag() != "") {
+            else
+            {
+                if (todo.GetTag() != "")
+                {
                     GameObject obj = GetObjectPrecise(pos.x, pos.y);
-                    if (obj==null || obj.tag!=todo.GetTag()) {
+                    if (obj == null || obj.tag != todo.GetTag())
+                    {
                         return false;
                     }
                 }
                 return HasObj(pos.x, pos.y);
             }
-        //return !collisionMap.HasTile(pos) && tileMap.HasTile(pos);
+            //return !collisionMap.HasTile(pos) && tileMap.HasTile(pos);
         }
-        else {
+        else
+        {
             return false;
         }
     }
 
-    public bool CheckLine(Vector3Int startPos_w, Vector3Int endPos_w, int maxdist=20, bool checkentities=false) {
+    public bool CheckLine(Vector3Int startPos_w, Vector3Int endPos_w, int maxdist = 20, bool checkentities = false)
+    {
         Vector3Int offset = new Vector3Int(xmin, ymin, 0);
         Vector3Int startPos = startPos_w - offset;
         Vector3Int endPos = endPos_w - offset;
@@ -103,8 +116,9 @@ public class TileGridController : MonoBehaviour {
                                     endPos_w.z - startPos_w.z)).normalized;
         if ((startPos - endPos).magnitude > maxdist) { return true; }
         int i, j;
-        int breaker=0;
-        while (Vector3Int.RoundToInt(checkPos) != endPos && breaker<maxdist) {
+        int breaker = 0;
+        while (Vector3Int.RoundToInt(checkPos) != endPos && breaker < maxdist)
+        {
             breaker++;
             checkPos += step;
             i = Mathf.RoundToInt(checkPos.x);
@@ -118,14 +132,17 @@ public class TileGridController : MonoBehaviour {
     }
 
     // Djriska or whomever's algorithm, easier to write imo
-    public void getPath(Vector3Int startPos_w, Vector3Int endPos_w, List<Vector3Int> steps, int maxDist=50) {
+    public void getPath(Vector3Int startPos_w, Vector3Int endPos_w, List<Vector3Int> steps, int maxDist = 50)
+    {//, Unit.ActType todo=Unit.ActType.Movement) {
         startPos_w[2] = 0;
         endPos_w[2] = 0;
         //int maxDist = 100;
-        int i, j,ii,jj;
+        int i, j, ii, jj;
         float[,] dists = new float[xsize, ysize];
-        for (i = 0; i < xsize;i++) {
-            for (j = 0; j < ysize;j++) {
+        for (i = 0; i < xsize; i++)
+        {
+            for (j = 0; j < ysize; j++)
+            {
 
                 dists[i, j] = maxDist;
 
@@ -145,9 +162,9 @@ public class TileGridController : MonoBehaviour {
         {
             breaker++;
             //currentDist++;
-            for (i = 1; i < xsize-1; i++)
+            for (i = 1; i < xsize - 1; i++)
             {
-                for (j = 1; j < ysize-1; j++)
+                for (j = 1; j < ysize - 1; j++)
                 {
                     if (i != startPos.x || j != startPos.y)
                     {
@@ -158,11 +175,12 @@ public class TileGridController : MonoBehaviour {
                     }
 
                     currentDist = dists[i, j];
-                    for (ii = -1; ii < 2;ii++) {
+                    for (ii = -1; ii < 2; ii++)
+                    {
                         for (jj = -1; jj < 2; jj++)
                         {
                             steplength = Mathf.Sqrt(Mathf.Pow(ii, 2) + Mathf.Pow(jj, 2));
-                            if (dists[i+ii, j+jj]+steplength < currentDist)
+                            if (dists[i + ii, j + jj] + steplength < currentDist)
                             {
                                 dists[i, j] = dists[i + ii, j + jj] + steplength;
                                 currentDist = dists[i, j];
@@ -172,7 +190,7 @@ public class TileGridController : MonoBehaviour {
                 }
             }
         }
-        if (!Mathf.Approximately(dists[startPos[0], startPos[1]],maxDist))
+        if (!Mathf.Approximately(dists[startPos[0], startPos[1]], maxDist))
         {
 
             Vector3Int currentPos = startPos;
@@ -182,7 +200,7 @@ public class TileGridController : MonoBehaviour {
             while (currentPos != endPos && breaker < maxDist)
             {
                 //Debug.Log(currentPos + " " + endPos);
-                steps.Add(currentPos+offset);
+                steps.Add(currentPos + offset);
                 distval = dists[currentPos.x, currentPos.y];
                 for (i = -1; i < 2; i++)
                 {
@@ -200,25 +218,31 @@ public class TileGridController : MonoBehaviour {
             }
             steps.Add(currentPos + offset);
         }
+        //steps.
     }
 
-    bool HasObj(int x, int y) {
+    bool HasObj(int x, int y)
+    {
 
-        foreach (Transform trans in Entities) {
-            if (Mathf.FloorToInt(trans.position.x)==x && Mathf.FloorToInt(trans.position.y) == y) {
+        foreach (Transform trans in Entities)
+        {
+            if (Mathf.FloorToInt(trans.position.x) == x && Mathf.FloorToInt(trans.position.y) == y)
+            {
                 return true;
             }
         }
         return false;
     }
 
-    public GameObject GetObjectPrecise(int x, int y, GameObject requester = null) {
+    public GameObject GetObjectPrecise(int x, int y, GameObject requester = null)
+    {
         GameObject toReturn = null;
         foreach (Transform trans in Entities)
         {
             if (Mathf.FloorToInt(trans.position.x) == x && Mathf.FloorToInt(trans.position.y) == y)
             {
-                if (trans.gameObject == requester) {
+                if (trans.gameObject == requester)
+                {
                     continue;
                 }
                 return trans.gameObject;
@@ -227,15 +251,17 @@ public class TileGridController : MonoBehaviour {
         return toReturn;
     }
 
-    public GameObject GetObject(int x, int y, GameObject requester=null) {
+    public GameObject GetObject(int x, int y, GameObject requester = null)
+    {
         float mindist = 1000;
-        GameObject toReturn=null;
+        GameObject toReturn = null;
         float currentdist = 1000;
         foreach (Transform trans in Entities)
         {
             currentdist = Mathf.Sqrt(Mathf.Pow(x - Mathf.FloorToInt(trans.position.x), 2f)
                                    + Mathf.Pow(y - Mathf.FloorToInt(trans.position.y), 2f));
-            if (currentdist < mindist && trans.gameObject != requester) {
+            if (currentdist < mindist && trans.gameObject != requester)
+            {
                 mindist = currentdist;
                 toReturn = trans.gameObject;
             }
@@ -243,15 +269,18 @@ public class TileGridController : MonoBehaviour {
         return toReturn;
     }
 
-    public List<Transform> GetInCone(Vector3Int startpos_w, Vector3Int targpos_w,int range) {
+    public List<Transform> GetInCone(Vector3Int startpos_w, Vector3Int targpos_w, int range, int range2 = -1) {
+        if (range2==-1) {
+            range2=range;
+        }
         List<Transform> toReturn = new List<Transform>();
         Vector3 startpos = new Vector3(startpos_w[0], startpos_w[1], 0);
         Vector3 targpos = new Vector3(targpos_w[0], targpos_w[1], 0);
         Vector3 vect = targpos - startpos;
         Vector3 perpvect = new Vector3(-vect[1], vect[0], 0);
         Vector3 p1 = startpos;
-        Vector3 p2=startpos+(vect.normalized * range) - perpvect.normalized * range / 2f;
-        Vector3 p3=startpos + (vect.normalized * range) + perpvect.normalized * range / 2f;
+        Vector3 p2=startpos+(vect.normalized * range) - perpvect.normalized * range2 / 2f;
+        Vector3 p3=startpos + (vect.normalized * range) + perpvect.normalized * range2 / 2f;
         Vector3 v1 = p2 - p1;
         Vector3 v2 = p3 - p2;
         Vector3 v3 = p1 - p3;

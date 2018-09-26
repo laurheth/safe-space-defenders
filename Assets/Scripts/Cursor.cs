@@ -106,7 +106,7 @@ public class Cursor : MonoBehaviour {
             line.enabled = false;
             oldpos = Vector3Int.zero;
         }
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetButtonDown("Fire1"))
         {
             if (unit != null && currentAction != null && validpath)
             {
@@ -115,7 +115,33 @@ public class Cursor : MonoBehaviour {
                     || currentAction.GetActType() == Unit.ActType.Melee)
                 {
                     gridController.getPath(Vector3Int.RoundToInt(transform.position - offset), Vector3Int.RoundToInt(worldPoint), linesteps);
+
+                    if (currentAction.GetActType() == Unit.ActType.Melee)
+                    {
+                        // do damage after moving
+                        StartCoroutine(currentUnit.QueueAction(currentAction, linesteps[linesteps.Count - 1]));
+                        /*foreach (Vector3Int thisone in linesteps)
+                        {
+                            Debug.Log("Before: " + linesteps);
+                        }*/
+                        //Vector3Int lastone;
+                        int i = 0;
+                        while (i<linesteps.Count) {
+                            if (linesteps[i]==linesteps[linesteps.Count-1]) {
+                                linesteps.RemoveAt(i);
+                            }
+                            else {
+                                i++;
+                            }
+                        }
+                        //linesteps.RemoveAll(linesteps[linesteps.Count - 1]);
+                    }
+
                     currentUnit.GiveMoveOrder(linesteps);
+                    /*foreach (Vector3Int thisone in linesteps)
+                    {
+                        Debug.Log("After: " + linesteps);
+                    }*/
                 }
                 else {
                     currentUnit.PerformAction(currentAction, Vector3Int.RoundToInt(worldPoint));
@@ -123,8 +149,10 @@ public class Cursor : MonoBehaviour {
                 srend.color = Color.red;
                 line.enabled = false;
                 oldpos = Vector3Int.zero;
+                //currentAction = null;
                 if (!currentUnit.MovesLeft())
                 {
+                    actionMenu.ClearOptions();
                     unit = null;
                     currentUnit = null;
                 }

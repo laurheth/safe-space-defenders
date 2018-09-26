@@ -33,8 +33,10 @@ public class Unit : MonoBehaviour
         //gridController.blockPosition()
         actions.Add(new Action("Move", 9, ActType.Movement, 0));
         actions.Add(new Action("Blow vuvuzela", 6, ActType.Cone, 10,6,"EnemyUnit"));
-        actions.Add(new Action("Finger guns", 9, ActType.Targetted, -6,0,"Unit"));
+        actions.Add(new Action("Finger guns", 9, ActType.Targetted, 6,0,"Unit"));
         actions.Add(new Action("Glitterbomb", 6, ActType.Grenade, 10,2));
+        actions.Add(new Action("Strike a pose", 0, ActType.Grenade, 10, 20));
+        actions.Add(new Action("Bear hug", 9, ActType.Melee, 6));
     }
 
     private void FixedUpdate()
@@ -88,7 +90,7 @@ public class Unit : MonoBehaviour
         }
     }
 
-    public enum ActType { Movement, Melee, Targetted, Cone, LineOfSight, Grenade };
+    public enum ActType { Movement, Melee, Targetted, Cone, Grenade };
 
     //[System.Serializable]
     public class Action {
@@ -145,6 +147,20 @@ public class Unit : MonoBehaviour
         }
     }
 
+    public IEnumerator QueueAction(Action todo, Vector3Int target) {
+        //Action todo_updated = new Action(todo.GetName)
+        yield return null;
+        Debug.Log("Action Queued");
+        while (!readyToMove()) {
+            //Debug.Log("Waiting...");
+            yield return null;
+        }
+        //Debug.Log("Doit!");
+        Debug.Log("Attempting...");
+        PerformAction(todo, target);
+        Debug.Log("Done!");
+    }
+
     public void PerformAction(Action todo, Vector3Int target) {
         movesLeft--;
         List<Transform> transes=null;
@@ -152,17 +168,17 @@ public class Unit : MonoBehaviour
             default:
             case ActType.Targetted:
                 GameObject targetMe = gridController.GetObject(target.x,target.y, gameObject);
-                targetMe.GetComponent<Unit>().Damage(todo.GetDamage());
+                targetMe.GetComponent<Unit>().Damage(todo.GetDamage(),gameObject.tag);
                 break;
             case ActType.Cone:
                 transes = gridController.GetInCone(Vector3Int.FloorToInt(transform.position),
-                                         target, todo.GetRange());
+                                         target, todo.GetRange(),todo.GetRange2());
                 break;
             case ActType.Grenade:
                 transes = gridController.GetInCircle(target, todo.GetRange2());
                 break;
         }
-        if (transes==null || transes.Count>0) {
+        if (transes!=null && transes.Count>0) {
             foreach (Transform trans in transes)
             {
                 if (todo.GetTag() != "") {
