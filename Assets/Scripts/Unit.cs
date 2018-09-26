@@ -32,8 +32,9 @@ public class Unit : MonoBehaviour
         gridController = transform.parent.gameObject.GetComponent<TileGridController>();
         //gridController.blockPosition()
         actions.Add(new Action("Move", 9, ActType.Movement, 0));
-        actions.Add(new Action("Blow vuvuzela", 6, ActType.Cone, 10));
-        actions.Add(new Action("Finger guns", 9, ActType.Targetted, 6));
+        actions.Add(new Action("Blow vuvuzela", 6, ActType.Cone, 10,6,"EnemyUnit"));
+        actions.Add(new Action("Finger guns", 9, ActType.Targetted, -6,0,"Unit"));
+        actions.Add(new Action("Glitterbomb", 6, ActType.Grenade, 10,2));
     }
 
     private void FixedUpdate()
@@ -93,13 +94,22 @@ public class Unit : MonoBehaviour
     public class Action {
         string menuName;
         int range;
+        int range2;
         ActType type;
         int damage;
-        public Action(string nom, int rng, ActType actType, int dmg) {
+        string tagspecific;
+        public Action(string nom, int rng, ActType actType, int dmg, int rng2=-1, string tg="") {
             menuName = nom;
             range = rng;
+            if (rng2<=0) {
+                range2 = rng;
+            }
+            else {
+                range2 = rng2;
+            }
             type = actType;
             damage = dmg;
+            tagspecific = tg;
         }
         public string GetName() {
             return menuName;
@@ -107,16 +117,28 @@ public class Unit : MonoBehaviour
         public int GetRange() {
             return range;
         }
+        public int GetRange2() {
+            return range2;
+        }
         public ActType GetActType() {
             return type;
         }
         public int GetDamage() {
             return damage;
         }
+        public string GetTag() {
+            return tagspecific;
+        }
     }
 
-    public void Damage(int dmg) {
-        Morale -= dmg;
+    public void Damage(int dmg,string tg="") {
+        if (gameObject.tag != tg)
+        {
+            Morale -= dmg;
+        }
+        else {
+            Morale += dmg;
+        }
         if (Morale <=0) {
             gridController.RemoveEntity(gameObject);
             Destroy(gameObject);
@@ -125,6 +147,7 @@ public class Unit : MonoBehaviour
 
     public void PerformAction(Action todo, Vector3Int target) {
         movesLeft--;
+        List<Transform> transes=null;
         switch (todo.GetActType()) {
             default:
             case ActType.Targetted:
@@ -132,12 +155,23 @@ public class Unit : MonoBehaviour
                 targetMe.GetComponent<Unit>().Damage(todo.GetDamage());
                 break;
             case ActType.Cone:
-                List<Transform> transes = gridController.GetInCone(Vector3Int.FloorToInt(transform.position),
+                transes = gridController.GetInCone(Vector3Int.FloorToInt(transform.position),
                                          target, todo.GetRange());
-                foreach (Transform trans in transes) {
-                    trans.gameObject.GetComponent<Unit>().Damage(todo.GetDamage());
-                }
                 break;
+            case ActType.Grenade:
+                transes = gridController.GetInCircle(target, todo.GetRange2());
+                break;
+        }
+        if (transes==null || transes.Count>0) {
+            foreach (Transform trans in transes)
+            {
+                if (todo.GetTag() != "") {
+                    if (trans.tag!=todo.GetTag()) {
+                        continue;
+                    }
+                }
+                trans.gameObject.GetComponent<Unit>().Damage(todo.GetDamage(),gameObject.tag);
+            }
         }
     }
 }

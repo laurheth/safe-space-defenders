@@ -78,6 +78,12 @@ public class TileGridController : MonoBehaviour {
                 return passable[pos.x - xmin, pos.y - ymin] && tileMap.HasTile(pos) && (!skipentities || !HasObj(pos.x, pos.y));
             }
             else {
+                if (todo.GetTag() != "") {
+                    GameObject obj = GetObjectPrecise(pos.x, pos.y);
+                    if (obj==null || obj.tag!=todo.GetTag()) {
+                        return false;
+                    }
+                }
                 return HasObj(pos.x, pos.y);
             }
         //return !collisionMap.HasTile(pos) && tileMap.HasTile(pos);
@@ -206,6 +212,21 @@ public class TileGridController : MonoBehaviour {
         return false;
     }
 
+    public GameObject GetObjectPrecise(int x, int y, GameObject requester = null) {
+        GameObject toReturn = null;
+        foreach (Transform trans in Entities)
+        {
+            if (Mathf.FloorToInt(trans.position.x) == x && Mathf.FloorToInt(trans.position.y) == y)
+            {
+                if (trans.gameObject == requester) {
+                    continue;
+                }
+                return trans.gameObject;
+            }
+        }
+        return toReturn;
+    }
+
     public GameObject GetObject(int x, int y, GameObject requester=null) {
         float mindist = 1000;
         GameObject toReturn=null;
@@ -249,7 +270,22 @@ public class TileGridController : MonoBehaviour {
         return toReturn;
     }
 
+    public List<Transform> GetInCircle(Vector3Int startpos_w,int range) {
+        List<Transform> toReturn = new List<Transform>();
+        Vector3 startpos = new Vector3(startpos_w[0], startpos_w[1], 0);
+        foreach (Transform trans in Entities)
+        {
+            if ((trans.position-startpos).magnitude<=range)
+            {
+                if (!CheckLine(startpos_w, Vector3Int.FloorToInt(trans.position), range))
+                {
+                    toReturn.Add(trans);
+                }
+            }
+        }
 
+        return toReturn;
+    }
 
     public void RemoveEntity(GameObject obj) {
         Entities.Remove(obj.transform);
