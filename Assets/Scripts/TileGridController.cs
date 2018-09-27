@@ -58,6 +58,21 @@ public class TileGridController : MonoBehaviour
 
     }
 
+    public Vector3Int RandomValidPos(Unit.Action todo) {
+        int breaker = 0;
+        int x, y;
+        Vector3 testpos=Vector3.zero;
+        do
+        {
+            x = Random.Range(xmin, xmax);
+            y = Random.Range(ymin, ymax);
+            testpos[0] = x;
+            testpos[1] = y;
+            breaker++;
+        } while (!validPos(testpos, todo) && breaker < 1000);
+        return Vector3Int.FloorToInt(testpos);
+    }
+
     public bool validPos(Vector3 pos_w, Unit.Action todo)
     {
         bool skipentities = true;
@@ -218,6 +233,20 @@ public class TileGridController : MonoBehaviour
             }
             steps.Add(currentPos + offset);
         }
+        //Remove duplicates
+        if (steps.Count>0) {
+            i = 0;
+            Vector3Int lastVect = Vector3Int.zero;
+            while (i<steps.Count) {
+                if (steps[i]==lastVect) {
+                    steps.RemoveAt(i);
+                }
+                else {
+                    lastVect = steps[i];
+                    i++;
+                }
+            }
+        }
         //steps.
     }
 
@@ -251,7 +280,7 @@ public class TileGridController : MonoBehaviour
         return toReturn;
     }
 
-    public GameObject GetObject(int x, int y, GameObject requester = null)
+    public GameObject GetObject(int x, int y, GameObject requester = null, string findtag="")
     {
         float mindist = 1000;
         GameObject toReturn = null;
@@ -262,8 +291,12 @@ public class TileGridController : MonoBehaviour
                                    + Mathf.Pow(y - Mathf.FloorToInt(trans.position.y), 2f));
             if (currentdist < mindist && trans.gameObject != requester)
             {
-                mindist = currentdist;
-                toReturn = trans.gameObject;
+                //Debug.Log(trans.tag + " " + findtag);
+                if (findtag == "" || trans.tag == findtag)
+                {
+                    mindist = currentdist;
+                    toReturn = trans.gameObject;
+                }
             }
         }
         return toReturn;

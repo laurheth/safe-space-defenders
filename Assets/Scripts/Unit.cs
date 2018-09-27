@@ -7,20 +7,21 @@ public class Unit : MonoBehaviour
     public Vector3 offset;
     public Vector3 moffset;
     public float pathcloseness;
+    public int MoveDistance;
     //public string[] actions;
     public List<Action> actions;
     //Vector3Int position;
     Vector3 currentVect;
     public float speed;
     public int MaxMorale;
-    int Morale;
+    public int Morale;
     public int movesPerTurn;
-    int movesLeft;
+    protected int movesLeft;
     Rigidbody2D rb;
-    TileGridController gridController;
+    protected TileGridController gridController;
     List<Vector3Int> steps;
     // Use this for initialization
-    void Start()
+    public virtual void Start()
     {
         Morale = MaxMorale;
         actions = new List<Action>();
@@ -31,12 +32,12 @@ public class Unit : MonoBehaviour
         //position = Vector3Int.RoundToInt(transform.position - offset);
         gridController = transform.parent.gameObject.GetComponent<TileGridController>();
         //gridController.blockPosition()
-        actions.Add(new Action("Move", 9, ActType.Movement, 0));
-        actions.Add(new Action("Blow vuvuzela", 6, ActType.Cone, 10,6,"EnemyUnit"));
+        actions.Add(new Action("Move", MoveDistance, ActType.Movement, 0));
+        actions.Add(new Action("Blow vuvuzela", 6, ActType.Cone, 6,6,"EnemyUnit"));
         actions.Add(new Action("Finger guns", 9, ActType.Targetted, 6,0,"Unit"));
         actions.Add(new Action("Glitterbomb", 6, ActType.Grenade, 10,2));
-        actions.Add(new Action("Strike a pose", 0, ActType.Grenade, 10, 20));
-        actions.Add(new Action("Bear hug", 9, ActType.Melee, 6));
+        //actions.Add(new Action("Strike a pose", 0, ActType.Grenade, 10, 20));
+        actions.Add(new Action("Bear hug", MoveDistance, ActType.Melee, 6));
     }
 
     private void FixedUpdate()
@@ -73,6 +74,10 @@ public class Unit : MonoBehaviour
     public bool MovesLeft()
     {
         return movesLeft > 0;
+    }
+
+    public void RenewMoves() {
+        movesLeft = movesPerTurn;
     }
 
     public bool readyToMove()
@@ -126,7 +131,7 @@ public class Unit : MonoBehaviour
             return type;
         }
         public int GetDamage() {
-            return damage;
+            return Random.Range(damage/2,(damage*3)/2);
         }
         public string GetTag() {
             return tagspecific;
@@ -160,7 +165,9 @@ public class Unit : MonoBehaviour
         PerformAction(todo, target);
         Debug.Log("Done!");
     }
-
+    public bool isDamaged() {
+        return Morale < MaxMorale;
+    }
     public void PerformAction(Action todo, Vector3Int target) {
         movesLeft--;
         List<Transform> transes=null;

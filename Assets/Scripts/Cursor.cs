@@ -7,19 +7,26 @@ public class Cursor : MonoBehaviour {
     LineRenderer line;
     public GameObject unit;
     Unit currentUnit;
+    EnemyUnit currentEnemyUnit;
     public Vector3 offset;
     public int maxdist;
     Vector3Int oldpos;
     Vector3Int newpos;
     bool validpath;
+    bool playerturn;
     //bool snaptoentity;
     SpriteRenderer srend;
     List<Vector3Int> linesteps;
+    List<Unit> PlayerUnits;
+    List<EnemyUnit> EnemyUnits;
     public GameObject actMenu;
     ActionMenu actionMenu;
+    int enemyid;
     Unit.Action currentAction;
 	// Use this for initialization
 	void Start () {
+        enemyid = 0;
+        playerturn = true;
         //snaptoentity = false;
         actionMenu = actMenu.GetComponent<ActionMenu>();
         validpath = false;
@@ -29,10 +36,62 @@ public class Cursor : MonoBehaviour {
         srend = GetComponent<SpriteRenderer>();
         newpos = Vector3Int.zero;
         oldpos = Vector3Int.zero;
+        PlayerUnits = new List<Unit>();
+        EnemyUnits = new List<EnemyUnit>();
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Unit"))
+        {
+            PlayerUnits.Add(obj.GetComponent<Unit>());
+        }
+
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("EnemyUnit"))
+        {
+            EnemyUnits.Add(obj.GetComponent<EnemyUnit>());
+        }
 	}
 	
 	// Update is called once per frame
 	void LateUpdate () {
+        if (currentUnit!=null && !currentUnit.readyToMove()) {
+            return;
+        }
+        if (currentEnemyUnit != null && !currentEnemyUnit.readyToMove())
+        {
+            return;
+        }
+        if (playerturn==false) {
+            //Debug.Log("Enemyturn?");
+            // Enemy turn goes here
+            if (unit==null) {
+                currentEnemyUnit = EnemyUnits[enemyid];
+                unit = currentEnemyUnit.gameObject;
+            }
+            if (currentEnemyUnit.MovesLeft()) {
+                if (currentEnemyUnit.readyToMove()) {
+                    currentEnemyUnit.RunAI();
+                }
+            }
+            else {
+                enemyid++;
+                if (enemyid<EnemyUnits.Count) {
+                    currentEnemyUnit = EnemyUnits[enemyid];
+                    unit = currentEnemyUnit.gameObject;
+                }
+                else {
+                    unit = null;
+                    currentUnit = null;
+                    playerturn = true;
+                    enemyid = 0;
+                    foreach (Unit punit in PlayerUnits) {
+                        punit.RenewMoves();
+                    }
+                    foreach (EnemyUnit punit in EnemyUnits)
+                    {
+                        punit.RenewMoves();
+                    }
+                }
+            }
+            return;
+        }
         newpos = Vector3Int.RoundToInt(Camera.main.ScreenToWorldPoint(Input.mousePosition) - offset);
         transform.position=offset+newpos;
         if (oldpos != newpos)
@@ -49,16 +108,9 @@ public class Cursor : MonoBehaviour {
                     // public enum ActType { Movement, Melee, Targetted, Cone, LineOfSight, Grenade };
                     switch(currentAction.GetActType()) {
                         default:
-                            /*if(!Physics2D.Linecast(
-                                new Vector2(unit.transform.position.x, unit.transform.position.y),
-                                new Vector2(newpos.x, newpos.y),
-                                LayerMask.GetMask("Default"))) {*/
-                            /*Debug.Log(Physics2D.Linecast(
-                                new Vector2(unit.transform.position.x, unit.transform.position.y),
-                                new Vector2(newpos.x+offset[0], newpos.y+offset[1]),*/
+                            
                             if (!gridController.CheckLine(Vector3Int.FloorToInt(unit.transform.position),
                                                    newpos,maxdist)) {
-                                //LayerMask.GetMask("Default")).transform.name);
                                 linesteps.Add(Vector3Int.FloorToInt(unit.transform.position));
                                 linesteps.Add(newpos);
                             }
@@ -120,11 +172,7 @@ public class Cursor : MonoBehaviour {
                     {
                         // do damage after moving
                         StartCoroutine(currentUnit.QueueAction(currentAction, linesteps[linesteps.Count - 1]));
-                        /*foreach (Vector3Int thisone in linesteps)
-                        {
-                            Debug.Log("Before: " + linesteps);
-                        }*/
-                        //Vector3Int lastone;
+
                         int i = 0;
                         while (i<linesteps.Count) {
                             if (linesteps[i]==linesteps[linesteps.Count-1]) {
@@ -154,7 +202,9 @@ public class Cursor : MonoBehaviour {
                 {
                     actionMenu.ClearOptions();
                     unit = null;
-                    currentUnit = null;
+                    currentAction = null;
+                    //currentUnit = null;
+                    CheckForEnemyTurn();
                 }
             }
             else {
@@ -179,4 +229,17 @@ public class Cursor : MonoBehaviour {
         currentAction = act;
         maxdist = currentAction.GetRange();
     }
+
+    void CheckForEnemyTurn() {
+        
+        foreach (Unit playerunit in PlayerUnits) {
+            if (playerunit.MovesLeft()) {
+                playerturn = true;
+                return;
+            }
+        }
+
+        playerturn = false;
+    }
+
 }

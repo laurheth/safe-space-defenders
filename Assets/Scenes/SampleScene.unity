@@ -388,8 +388,10 @@ MonoBehaviour:
   offset: {x: 0.5, y: 0, z: 0}
   moffset: {x: 0.5, y: 0.5, z: 0}
   pathcloseness: 0.1
+  MoveDistance: 9
   speed: 10
-  MaxMorale: 1
+  MaxMorale: 10
+  Morale: 0
   movesPerTurn: 2
 --- !u!212 &505494182
 SpriteRenderer:
@@ -2572,9 +2574,13 @@ MonoBehaviour:
   offset: {x: 0.5, y: 0, z: 0}
   moffset: {x: 0.5, y: 0.5, z: 0}
   pathcloseness: 0.1
+  MoveDistance: 9
   speed: 10
   MaxMorale: 5
+  Morale: 0
   movesPerTurn: 2
+  clusterPercent: 10
+  healPercent: 50
 --- !u!61 &740855599
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2712,9 +2718,13 @@ MonoBehaviour:
   offset: {x: 0.5, y: 0, z: 0}
   moffset: {x: 0.5, y: 0.5, z: 0}
   pathcloseness: 0.1
+  MoveDistance: 9
   speed: 10
   MaxMorale: 5
+  Morale: 0
   movesPerTurn: 2
+  clusterPercent: 10
+  healPercent: 50
 --- !u!61 &748298515
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -4363,8 +4373,10 @@ MonoBehaviour:
   offset: {x: 0.5, y: 0, z: 0}
   moffset: {x: 0.5, y: 0.5, z: 0}
   pathcloseness: 0.1
+  MoveDistance: 9
   speed: 10
-  MaxMorale: 1
+  MaxMorale: 10
+  Morale: 0
   movesPerTurn: 2
 --- !u!212 &792232618
 SpriteRenderer:
@@ -4458,9 +4470,13 @@ MonoBehaviour:
   offset: {x: 0.5, y: 0, z: 0}
   moffset: {x: 0.5, y: 0.5, z: 0}
   pathcloseness: 0.1
+  MoveDistance: 9
   speed: 10
   MaxMorale: 5
+  Morale: 0
   movesPerTurn: 2
+  clusterPercent: 10
+  healPercent: 50
 --- !u!61 &1075123069
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -4643,8 +4659,10 @@ MonoBehaviour:
   offset: {x: 0.5, y: 0, z: 0}
   moffset: {x: 0.5, y: 0.5, z: 0}
   pathcloseness: 0.1
+  MoveDistance: 9
   speed: 10
-  MaxMorale: 1
+  MaxMorale: 10
+  Morale: 0
   movesPerTurn: 2
 --- !u!212 &1201095556
 SpriteRenderer:
@@ -4738,9 +4756,13 @@ MonoBehaviour:
   offset: {x: 0.5, y: 0, z: 0}
   moffset: {x: 0.5, y: 0.5, z: 0}
   pathcloseness: 0.1
+  MoveDistance: 9
   speed: 10
   MaxMorale: 5
+  Morale: 0
   movesPerTurn: 2
+  clusterPercent: 10
+  healPercent: 50
 --- !u!61 &1206516198
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -5064,8 +5086,10 @@ MonoBehaviour:
   offset: {x: 0.5, y: 0, z: 0}
   moffset: {x: 0.5, y: 0.5, z: 0}
   pathcloseness: 0.1
+  MoveDistance: 9
   speed: 10
-  MaxMorale: 1
+  MaxMorale: 10
+  Morale: 0
   movesPerTurn: 2
 --- !u!212 &1773897671
 SpriteRenderer:
