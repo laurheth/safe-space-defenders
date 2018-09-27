@@ -15,10 +15,10 @@ public class EnemyUnit : Unit {
         actions.Clear();
         actions.Add(new Action("Move", MoveDistance, ActType.Movement, 0));
         //actions.Add(new Action("Blow vuvuzela", 6, ActType.Cone, 6, 6, "EnemyUnit"));
-        //actions.Add(new Action("Threatening gesture", 9, ActType.Targetted, 2, 0, "Unit"));
+        actions.Add(new Action("Threatening gesture", 9, ActType.Targetted, 2, 0, "Unit"));
         //actions.Add(new Action("Glitterbomb", 6, ActType.Grenade, 10, 2));
         //actions.Add(new Action("Strike a pose", 0, ActType.Grenade, 10, 20));
-        actions.Add(new Action("Board with a nail in it", MoveDistance, ActType.Melee, 3,0,"Unit"));
+        //actions.Add(new Action("Board with a nail in it", MoveDistance, ActType.Melee, 3,0,"Unit"));
     }
     /*
 	// Update is called once per frame
@@ -118,7 +118,7 @@ public class EnemyUnit : Unit {
                     GiveMoveOrder(linesteps);
                 }
                 else {
-                    PerformAction(actions[chooseaction], Vector3Int.FloorToInt(target.transform.position));
+                    StartCoroutine(AttackAnimation(actions[chooseaction], Vector3Int.FloorToInt(target.transform.position)));
                 }
             }
         }
@@ -138,9 +138,22 @@ public class EnemyUnit : Unit {
         {
             target = gridController.GetObject(pos.x, pos.y, gameObject, "EnemyUnit"); // Cluster
         }
-        gridController.getPath(Vector3Int.RoundToInt(transform.position - offset),
-                               Vector3Int.FloorToInt(target.transform.position),
-                               linesteps);
+        if (target != null)
+        {
+            gridController.getPath(Vector3Int.RoundToInt(transform.position - offset),
+                                   Vector3Int.FloorToInt(target.transform.position),
+                                   linesteps);
+        }
+        else {
+            int breaker=0;
+            while (linesteps.Count == 0 && breaker < 1000)
+            {
+                breaker++;
+                gridController.getPath(Vector3Int.RoundToInt(transform.position - offset),
+                                       gridController.RandomValidPos(actions[0]),
+                                       linesteps);
+            }
+        }
         i = 0;
         // min range
         while (i < linesteps.Count)

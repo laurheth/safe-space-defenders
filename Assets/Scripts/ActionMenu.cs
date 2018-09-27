@@ -7,9 +7,11 @@ public class ActionMenu : MonoBehaviour {
     public GameObject actionprefab;
     List<GameObject> options;
     Cursor cursor;
+    bool newselection;
     public GameObject cursobj;
 	// Use this for initialization
 	void Start () {
+        newselection = false;
         selected = null;
         options = new List<GameObject>();
         cursor = cursobj.GetComponent<Cursor>();
@@ -36,6 +38,7 @@ public class ActionMenu : MonoBehaviour {
     public void DefineOptions(GameObject thisunit) {
 
         ClearOptions();
+        newselection = true;
         Unit unit = thisunit.GetComponent<Unit>();
         foreach (Unit.Action act in unit.actions) {
             GameObject newoption=Instantiate(actionprefab, transform);
@@ -47,7 +50,8 @@ public class ActionMenu : MonoBehaviour {
 
     private void Update()
     {
-        if (Input.GetButtonDown("Fire2") && options.Count>0) {
+        if ((newselection || Input.GetButtonDown("Fire2")) && options.Count>0) {
+            newselection = false;
             if (selected == null || !options.Contains(selected)) {
                 selected = options[0];
             }

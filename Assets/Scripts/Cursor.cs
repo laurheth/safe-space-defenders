@@ -42,7 +42,7 @@ public class Cursor : MonoBehaviour {
         {
             PlayerUnits.Add(obj.GetComponent<Unit>());
         }
-
+        EnemyUnits.Clear();
         foreach (GameObject obj in GameObject.FindGameObjectsWithTag("EnemyUnit"))
         {
             EnemyUnits.Add(obj.GetComponent<EnemyUnit>());
@@ -62,6 +62,7 @@ public class Cursor : MonoBehaviour {
             //Debug.Log("Enemyturn?");
             // Enemy turn goes here
             if (unit==null) {
+                
                 currentEnemyUnit = EnemyUnits[enemyid];
                 unit = currentEnemyUnit.gameObject;
             }
@@ -192,7 +193,8 @@ public class Cursor : MonoBehaviour {
                     }*/
                 }
                 else {
-                    currentUnit.PerformAction(currentAction, Vector3Int.RoundToInt(worldPoint));
+                    //currentUnit.PerformAction(currentAction, Vector3Int.RoundToInt(worldPoint));
+                    StartCoroutine(currentUnit.AttackAnimation(currentAction, Vector3Int.RoundToInt(worldPoint)));
                 }
                 srend.color = Color.red;
                 line.enabled = false;
@@ -223,6 +225,20 @@ public class Cursor : MonoBehaviour {
                 }
             }
         }
+        // Switch between units
+        if (Input.GetButtonDown("Fire3")) {
+            if (currentUnit==null) {
+                currentUnit = PlayerUnits[0];
+            }
+            else {
+                int i = PlayerUnits.IndexOf(currentUnit);
+                i++;
+                if (i >= PlayerUnits.Count) { i = 0; }
+                currentUnit = PlayerUnits[i];
+            }
+            unit = currentUnit.gameObject;
+            actionMenu.DefineOptions(unit);
+        }
 	}
 
     public void SetAction(Unit.Action act) {
@@ -238,7 +254,11 @@ public class Cursor : MonoBehaviour {
                 return;
             }
         }
-
+        EnemyUnits.Clear();
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("EnemyUnit"))
+        {
+            EnemyUnits.Add(obj.GetComponent<EnemyUnit>());
+        }
         playerturn = false;
     }
 

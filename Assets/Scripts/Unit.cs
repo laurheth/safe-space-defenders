@@ -6,6 +6,8 @@ public class Unit : MonoBehaviour
 {
     public Vector3 offset;
     public Vector3 moffset;
+    public Vector3 handlocation;
+    public GameObject whiteFlagPrefab;
     public float pathcloseness;
     public int MoveDistance;
     //public string[] actions;
@@ -17,13 +19,21 @@ public class Unit : MonoBehaviour
     public int Morale;
     public int movesPerTurn;
     protected int movesLeft;
+    bool animating;
     Rigidbody2D rb;
     protected TileGridController gridController;
     List<Vector3Int> steps;
+    UnitCanvas unitCanvas;
     // Use this for initialization
     public virtual void Start()
     {
+        unitCanvas = GetComponentInChildren<UnitCanvas>();
+        animating = false;
         Morale = MaxMorale;
+
+        unitCanvas.SetMaxMP(MaxMorale);
+        unitCanvas.SetCurrentMP(MaxMorale);
+
         actions = new List<Action>();
         movesLeft = movesPerTurn;
         currentVect = Vector3.zero;
@@ -82,7 +92,7 @@ public class Unit : MonoBehaviour
 
     public bool readyToMove()
     {
-        return steps.Count == 0;
+        return (steps.Count == 0) && !animating;
     }
 
     public void GiveMoveOrder(List<Vector3Int> newsteps)
@@ -139,16 +149,22 @@ public class Unit : MonoBehaviour
     }
 
     public void Damage(int dmg,string tg="") {
-        if (gameObject.tag != tg)
+        if (gameObject.tag == tg)
         {
-            Morale -= dmg;
+            dmg *= -1;
+            //Morale -= dmg;
         }
-        else {
-            Morale += dmg;
-        }
+        Morale -= dmg;
+        if (Morale > MaxMorale) { Morale = MaxMorale; }
+        unitCanvas.SetCurrentMP(Morale);
+        StartCoroutine(unitCanvas.DamageAnimation(-dmg));
         if (Morale <=0) {
+            movesPerTurn=0;
+            movesLeft = 0;
             gridController.RemoveEntity(gameObject);
-            Destroy(gameObject);
+            GameObject newflag=Instantiate(whiteFlagPrefab, transform, false);
+            newflag.transform.localPosition = handlocation;
+            //Destroy(gameObject);
         }
     }
 
@@ -162,14 +178,14 @@ public class Unit : MonoBehaviour
         }
         //Debug.Log("Doit!");
         Debug.Log("Attempting...");
-        PerformAction(todo, target);
+        StartCoroutine(AttackAnimation(todo, target));
         Debug.Log("Done!");
     }
     public bool isDamaged() {
         return Morale < MaxMorale;
     }
     public void PerformAction(Action todo, Vector3Int target) {
-        movesLeft--;
+        //movesLeft--;
         List<Transform> transes=null;
         switch (todo.GetActType()) {
             default:
@@ -196,5 +212,29 @@ public class Unit : MonoBehaviour
                 trans.gameObject.GetComponent<Unit>().Damage(todo.GetDamage(),gameObject.tag);
             }
         }
+    }
+
+    public IEnumerator AttackAnimation(Action todo, Vector3Int target) {
+        movesLeft--;
+        animating = true;
+        Vector3 startpos = transform.position + Vector3.zero;
+        Vector3 vec = (new Vector3(target.x, target.y, 0) - startpos).normalized;
+        float maxmoved = 2 * pathcloseness;
+        float moved = 0;
+        while (moved<maxmoved) {
+            moved += speed*Time.deltaTime;
+            transform.position = startpos + moved * vec;
+            yield return null;
+        }
+        PerformAction(todo, target);
+        yield return null;
+        while (moved >0)
+        {
+            moved -= speed*Time.deltaTime;
+            transform.position = startpos + moved * vec;
+            yield return null;
+        }
+        transform.position = startpos;
+        animating = false;
     }
 }
