@@ -108,13 +108,14 @@ public class Unit : MonoBehaviour
                 obj = gridController.GetObjectPrecise(i + ii, j + jj, gameObject);
                 if (obj!=null && obj.tag==this.tag) {
                     damageresistance++;
+                    damageresistance++;
                 }
             }
         }
         if (damagesources.Count>1) {
             for (ii = 0; ii < damagesources.Count-1;ii++) {
                 for (jj = ii + 1; jj < damagesources.Count;jj++) {
-                    if (Vector3.Dot(damagesources[ii],damagesources[jj])<0) {
+                    if (Vector3.Dot(damagesources[ii].normalized,damagesources[jj].normalized)<0.5) {
                         damageresistance--;
                     }
                 }
