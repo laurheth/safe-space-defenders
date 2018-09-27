@@ -151,14 +151,14 @@ public class Cursor : MonoBehaviour {
                 line.enabled = false;
                 oldpos = Vector3Int.zero;
             }
-        }
+        }/*
         if (Input.GetButtonDown("Cancel")) {
             unit = null;
             currentUnit = null;
             srend.color = Color.red;
             line.enabled = false;
             oldpos = Vector3Int.zero;
-        }
+        }*/
         if (Input.GetButtonDown("Fire1"))
         {
             if (unit != null && currentAction != null && validpath)
@@ -226,14 +226,27 @@ public class Cursor : MonoBehaviour {
             }
         }
         // Switch between units
-        if (Input.GetButtonDown("Fire3")) {
-            if (currentUnit==null) {
+        if (playerturn && (Input.GetButtonDown("Fire3") || (unit==null && (currentUnit==null || currentUnit.readyToMove())) )) {
+            if (currentUnit==null && PlayerUnits[0].MovesLeft()) {
                 currentUnit = PlayerUnits[0];
             }
             else {
+                int stepstaken = 0;
                 int i = PlayerUnits.IndexOf(currentUnit);
-                i++;
-                if (i >= PlayerUnits.Count) { i = 0; }
+                do
+                {
+                    i++;
+                    stepstaken++;
+                    if (i >= PlayerUnits.Count) { i = 0; }
+                    if (stepstaken>PlayerUnits.Count) {
+                        playerturn = false;
+                        actionMenu.ClearOptions();
+                        unit = null;
+                        currentAction = null;
+                        return;
+                    }
+                } while (!PlayerUnits[i].MovesLeft());
+
                 currentUnit = PlayerUnits[i];
             }
             unit = currentUnit.gameObject;
