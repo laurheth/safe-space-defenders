@@ -23,10 +23,15 @@ public class Unit : MonoBehaviour
     Rigidbody2D rb;
     protected TileGridController gridController;
     List<Vector3Int> steps;
+
     UnitCanvas unitCanvas;
+    List<Vector3> damagesources;
+    public int damageresistance;
     // Use this for initialization
     public virtual void Start()
     {
+        damagesources = new List<Vector3>();
+        damageresistance = 0;
         unitCanvas = GetComponentInChildren<UnitCanvas>();
         animating = false;
         Morale = MaxMorale;
@@ -87,7 +92,34 @@ public class Unit : MonoBehaviour
     }
 
     public void RenewMoves() {
+        damagesources.Clear();
+        //damageresistance = 0;
         movesLeft = movesPerTurn;
+    }
+
+    void CalcResistance() {
+        int i = Mathf.FloorToInt(transform.position.x);
+        int j = Mathf.FloorToInt(transform.position.y);
+        int ii, jj;
+        GameObject obj;
+        damageresistance = 0;
+        for (ii = -1; ii < 2;ii++) {
+            for (jj = -1; jj < 2;jj++) {
+                obj = gridController.GetObjectPrecise(i + ii, j + jj, gameObject);
+                if (obj!=null && obj.tag==this.tag) {
+                    damageresistance++;
+                }
+            }
+        }
+        if (damagesources.Count>1) {
+            for (ii = 0; ii < damagesources.Count-1;ii++) {
+                for (jj = ii + 1; jj < damagesources.Count;jj++) {
+                    if (Vector3.Dot(damagesources[ii],damagesources[jj])<0) {
+                        damageresistance--;
+                    }
+                }
+            }
+        }
     }
 
     public bool readyToMove()
@@ -148,11 +180,16 @@ public class Unit : MonoBehaviour
         }
     }
 
-    public void Damage(int dmg,string tg="") {
+    public void Damage(int dmg,Vector3 source,string tg="") {
         if (gameObject.tag == tg)
         {
             dmg *= -1;
             //Morale -= dmg;
+        }
+        if (dmg>0) {
+            damagesources.Add(source-transform.position);
+            CalcResistance();
+            dmg = Mathf.Max(1, dmg - damageresistance);
         }
         Morale -= dmg;
         if (Morale > MaxMorale) { Morale = MaxMorale; }
@@ -191,7 +228,7 @@ public class Unit : MonoBehaviour
             default:
             case ActType.Targetted:
                 GameObject targetMe = gridController.GetObject(target.x,target.y, gameObject);
-                targetMe.GetComponent<Unit>().Damage(todo.GetDamage(),gameObject.tag);
+                targetMe.GetComponent<Unit>().Damage(todo.GetDamage(),transform.position,gameObject.tag);
                 break;
             case ActType.Cone:
                 transes = gridController.GetInCone(Vector3Int.FloorToInt(transform.position),
@@ -209,7 +246,7 @@ public class Unit : MonoBehaviour
                         continue;
                     }
                 }
-                trans.gameObject.GetComponent<Unit>().Damage(todo.GetDamage(),gameObject.tag);
+                trans.gameObject.GetComponent<Unit>().Damage(todo.GetDamage(),transform.position,gameObject.tag);
             }
         }
     }
