@@ -111,7 +111,7 @@ public class TileGridController : MonoBehaviour
             pos[2] = 0;
             if (!onlyentities)
             {
-                return passable[pos.x - xmin, pos.y - ymin] && tileMap.HasTile(pos) && (!skipentities || !HasObj(pos.x, pos.y) || nowalking[pos.x - xmin, pos.y - ymin]);
+                return passable[pos.x - xmin, pos.y - ymin] && tileMap.HasTile(pos) && (!skipentities || (!HasObj(pos.x, pos.y) && nowalking[pos.x - xmin, pos.y - ymin]));
             }
             else
             {
@@ -196,7 +196,7 @@ public class TileGridController : MonoBehaviour
                 {
                     if (i != startPos.x || j != startPos.y)
                     {
-                        if (!passable[i, j] || HasObj(i + xmin, j + ymin))
+                        if (!passable[i, j] || HasObj(i + xmin, j + ymin) || !nowalking[i,j])
                         {
                             continue;
                         }
