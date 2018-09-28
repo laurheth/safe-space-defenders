@@ -8,11 +8,13 @@ public class TileGridController : MonoBehaviour
 
     public Tilemap tileMap;
     public Tilemap collisionMap;
+    public Tilemap nowalkingMap;
     GridLayout grid;
     int xsize, ysize;
     int xmin, ymin;
     int xmax, ymax;
     bool[,] passable;
+    bool[,] nowalking;
     List<Transform> Entities;
     //List<>
     // Use this for initialization
@@ -38,6 +40,7 @@ public class TileGridController : MonoBehaviour
         ymin = collisionMap.cellBounds.yMin;
         ymax = collisionMap.cellBounds.yMax;
         passable = new bool[xsize, ysize];
+        nowalking = new bool[xsize, ysize];
         for (int i = 0; i < xsize; i++)
         {
             for (int j = 0; j < ysize; j++)
@@ -50,6 +53,14 @@ public class TileGridController : MonoBehaviour
                 else
                 {
                     passable[i, j] = true;
+                }
+                if (nowalkingMap.HasTile(new Vector3Int(i + xmin, j + ymin, 0)))
+                {
+                    nowalking[i, j] = false;
+                }
+                else
+                {
+                    nowalking[i, j] = true;
                 }
                 //Debug.Log(i + " " + j + " "+passable[i,j]);
                 //Debug.Log(xmin + " " + xmax);
@@ -75,6 +86,8 @@ public class TileGridController : MonoBehaviour
 
     public bool validPos(Vector3 pos_w, Unit.Action todo)
     {
+        // treating nowalking map like entities i.e. blocks walking but not attacks
+        // except for "only entities" which is targetting units, not map features
         bool skipentities = true;
         bool onlyentities = false;
         if (todo != null)
@@ -98,7 +111,7 @@ public class TileGridController : MonoBehaviour
             pos[2] = 0;
             if (!onlyentities)
             {
-                return passable[pos.x - xmin, pos.y - ymin] && tileMap.HasTile(pos) && (!skipentities || !HasObj(pos.x, pos.y));
+                return passable[pos.x - xmin, pos.y - ymin] && tileMap.HasTile(pos) && (!skipentities || !HasObj(pos.x, pos.y) || nowalking[pos.x - xmin, pos.y - ymin]);
             }
             else
             {

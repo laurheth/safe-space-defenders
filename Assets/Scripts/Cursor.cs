@@ -22,9 +22,12 @@ public class Cursor : MonoBehaviour {
     public GameObject actMenu;
     ActionMenu actionMenu;
     int enemyid;
+    GameObject cam;
+    float cx, cy;
     Unit.Action currentAction;
 	// Use this for initialization
 	void Start () {
+        cam = GameObject.FindGameObjectWithTag("MainCamera");
         enemyid = 0;
         playerturn = true;
         //snaptoentity = false;
@@ -51,6 +54,12 @@ public class Cursor : MonoBehaviour {
 	
 	// Update is called once per frame
 	void LateUpdate () {
+        
+        cx = Input.GetAxis("Horizontal");
+        cy = Input.GetAxis("Vertical");
+        cam.transform.position += new Vector3(cx/2f, cy/2f, 0);
+        //cam.transform.position[1] += cy;
+
         if (currentUnit!=null && !currentUnit.readyToMove()) {
             return;
         }
