@@ -23,13 +23,14 @@ public class Unit : MonoBehaviour
     Rigidbody2D rb;
     protected TileGridController gridController;
     List<Vector3Int> steps;
-
+    bool dieAfterMove;
     UnitCanvas unitCanvas;
     List<Vector3> damagesources;
     public int damageresistance;
     // Use this for initialization
     public virtual void Start()
     {
+        dieAfterMove = false;
         damagesources = new List<Vector3>();
         damageresistance = 0;
         unitCanvas = GetComponentInChildren<UnitCanvas>();
@@ -74,6 +75,9 @@ public class Unit : MonoBehaviour
                 currentVect = Vector3.zero;
                 steps.RemoveAt(0);
             }
+        }
+        else if (dieAfterMove) {
+            Destroy(gameObject);
         }
     }
 
@@ -204,6 +208,7 @@ public class Unit : MonoBehaviour
             newflag.transform.localPosition = handlocation;
             gridController.getPath(Vector3Int.FloorToInt(transform.position),
                                    Vector3Int.one, steps, 200, true);
+            dieAfterMove = true;
             //Destroy(gameObject);
         }
     }

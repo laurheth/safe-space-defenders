@@ -14,6 +14,8 @@ public class Cursor : MonoBehaviour {
     Vector3Int newpos;
     bool validpath;
     bool playerturn;
+    bool won;
+    bool lost;
     //bool snaptoentity;
     SpriteRenderer srend;
     List<Vector3Int> linesteps;
@@ -23,10 +25,14 @@ public class Cursor : MonoBehaviour {
     ActionMenu actionMenu;
     int enemyid;
     GameObject cam;
+    public GameObject winMsg;
+    public GameObject loseMsg;
     float cx, cy;
     Unit.Action currentAction;
 	// Use this for initialization
 	void Start () {
+        won = false;
+        lost = false;
         cam = GameObject.FindGameObjectWithTag("MainCamera");
         enemyid = 0;
         playerturn = true;
@@ -51,7 +57,7 @@ public class Cursor : MonoBehaviour {
             EnemyUnits.Add(obj.GetComponent<EnemyUnit>());
         }
 	}
-	
+
 	// Update is called once per frame
 	void LateUpdate () {
         
@@ -59,7 +65,15 @@ public class Cursor : MonoBehaviour {
         cy = Input.GetAxis("Vertical");
         cam.transform.position += new Vector3(cx/2f, cy/2f, 0);
         //cam.transform.position[1] += cy;
-
+        if (won || lost) {
+            if (won) {
+                winMsg.SetActive(true);
+            }
+            else {
+                loseMsg.SetActive(true);
+            }
+            return;
+        }
         if (currentUnit!=null && !currentUnit.readyToMove()) {
             return;
         }
@@ -91,6 +105,15 @@ public class Cursor : MonoBehaviour {
                     currentUnit = null;
                     playerturn = true;
                     enemyid = 0;
+                    PlayerUnits.Clear();
+                    foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Unit"))
+                    {
+                        PlayerUnits.Add(obj.GetComponent<Unit>());
+                    }
+                    if (PlayerUnits.Count==0) {
+                        lost = true;
+                        return;
+                    }
                     foreach (Unit punit in PlayerUnits) {
                         punit.RenewMoves();
                     }
@@ -281,6 +304,7 @@ public class Cursor : MonoBehaviour {
         {
             EnemyUnits.Add(obj.GetComponent<EnemyUnit>());
         }
+        if (EnemyUnits.Count == 0) { won = true; }
         playerturn = false;
     }
 
