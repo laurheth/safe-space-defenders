@@ -160,7 +160,7 @@ public class TileGridController : MonoBehaviour
     }
 
     // Djriska or whomever's algorithm, easier to write imo
-    public void getPath(Vector3Int startPos_w, Vector3Int endPos_w, List<Vector3Int> steps, int maxDist = 50)
+    public void getPath(Vector3Int startPos_w, Vector3Int endPos_w, List<Vector3Int> steps, int maxDist = 50, bool leavemap=false)
     {//, Unit.ActType todo=Unit.ActType.Movement) {
         startPos_w[2] = 0;
         endPos_w[2] = 0;
@@ -181,8 +181,23 @@ public class TileGridController : MonoBehaviour
         Vector3Int endPos = endPos_w - offset;
 
         //Debug.Log(startPos + " " + endPos + " " + offset);
+        if (!leavemap)
+        {
+            dists[endPos[0], endPos[1]] = 0;
+        }
+        else {
+            for (i = 1; i < xsize-1; i++)
+            {
+                for (j = 1; j < ysize-1; j++)
+                {
+                    if (i == 1 || i == xsize - 2 || j == 1 || j == ysize - 2)
+                    {
+                        dists[i, j] = 0;
+                    }
 
-        dists[endPos[0], endPos[1]] = 0;
+                }
+            } 
+        }
         float currentDist = 0;
         int breaker = 0;
         float steplength = 0;
@@ -196,7 +211,7 @@ public class TileGridController : MonoBehaviour
                 {
                     if (i != startPos.x || j != startPos.y)
                     {
-                        if (!passable[i, j] || HasObj(i + xmin, j + ymin) || !nowalking[i,j])
+                        if (!passable[i, j] || (!leavemap && HasObj(i + xmin, j + ymin)) || !nowalking[i,j])
                         {
                             continue;
                         }

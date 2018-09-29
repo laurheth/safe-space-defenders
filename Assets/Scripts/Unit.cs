@@ -202,6 +202,8 @@ public class Unit : MonoBehaviour
             gridController.RemoveEntity(gameObject);
             GameObject newflag=Instantiate(whiteFlagPrefab, transform, false);
             newflag.transform.localPosition = handlocation;
+            gridController.getPath(Vector3Int.FloorToInt(transform.position),
+                                   Vector3Int.one, steps, 200, true);
             //Destroy(gameObject);
         }
     }

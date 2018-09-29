@@ -77,6 +77,7 @@ public class EnemyUnit : Unit {
                     target = gridController.GetObject(pos.x, pos.y, skipself, "Unit");
                     //Debug.Log(target.name);
                 }
+                if (target == null) { continue; }
                 switch (actions[chooseaction].GetActType())
                 {
                     default:
@@ -169,18 +170,21 @@ public class EnemyUnit : Unit {
         }
         i = 0;
         // remove last step
-        while (i < linesteps.Count)
+        if (target != null)
         {
-            if (linesteps[i] == Vector3Int.FloorToInt(target.transform.position))
+            while (i < linesteps.Count)
             {
-                linesteps.RemoveAt(i);
+                if (linesteps[i] == Vector3Int.FloorToInt(target.transform.position))
+                {
+                    linesteps.RemoveAt(i);
+                }
+                else
+                {
+                    i++;
+                }
             }
-            else
-            {
-                i++;
-            }
+            GiveMoveOrder(linesteps);
         }
-        GiveMoveOrder(linesteps);
     }
 
     /*bool AttemptAttacks() {
