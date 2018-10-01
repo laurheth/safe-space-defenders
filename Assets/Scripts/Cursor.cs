@@ -84,6 +84,25 @@ public class Cursor : MonoBehaviour {
             return;
         }
         if (playerturn==false) {
+            if (recalcresist)
+            {
+                foreach (Unit unt in PlayerUnits)
+                {
+                    if (unt != null)
+                    {
+                        unt.CalcResistance();
+                    }
+                }
+                foreach (EnemyUnit unt in EnemyUnits)
+                {
+                    if (unt != null)
+                    {
+                        unt.CalcResistance();
+                    }
+                }
+                recalcresist = false;
+            }
+
             //Debug.Log("Enemyturn?");
             // Enemy turn goes here
             if (unit==null) {
