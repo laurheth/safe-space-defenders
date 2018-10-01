@@ -9,9 +9,9 @@ public class EnemyUnit : Unit {
     //List<>
     //int actionint;
     // Use this for initialization
-    public override void Start()
+    public override void Awake()
     {
-        base.Start();
+        base.Awake();
         actions.Clear();
         actions.Add(new Action("Move", MoveDistance, ActType.Movement, 0));
         //actions.Add(new Action("Blow vuvuzela", 6, ActType.Cone, 6, 6, "EnemyUnit"));

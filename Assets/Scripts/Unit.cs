@@ -24,11 +24,12 @@ public class Unit : MonoBehaviour
     protected TileGridController gridController;
     List<Vector3Int> steps;
     bool dieAfterMove;
+
     UnitCanvas unitCanvas;
     List<Vector3> damagesources;
     public int damageresistance;
     // Use this for initialization
-    public virtual void Start()
+    public virtual void Awake()
     {
         dieAfterMove = false;
         damagesources = new List<Vector3>();
@@ -281,5 +282,20 @@ public class Unit : MonoBehaviour
         }
         transform.position = startpos;
         animating = false;
+    }
+
+    public void SetDetails(string newname, string newpronouns, int newmorale, int newmove, Sprite newsprite, List<Action> newactions) {
+        gameObject.name = newname;
+        GetComponent<SpriteRenderer>().sprite = newsprite;
+        actions.Clear();
+        for (int i = 0; i < newactions.Count; i++)
+        {
+            actions.Add(newactions[i]);
+        }
+        MaxMorale = newmorale;
+        Morale = newmorale;
+        MoveDistance = newmove;
+        unitCanvas.SetMaxMP(MaxMorale);
+        unitCanvas.SetCurrentMP(MaxMorale);
     }
 }

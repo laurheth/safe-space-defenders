@@ -90,7 +90,7 @@ GameObject:
   - component: {fileID: 114531055911353394}
   m_Layer: 5
   m_Name: CharInfo
-  m_TagString: Untagged
+  m_TagString: CharSelector
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1244,10 +1244,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5430fb2bc0e444d389d1b0fc8fbb6366, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NameInputObj: {fileID: 1441262677170420}
-  PronounInputObj: {fileID: 1794061715568176}
-  ClassInputObj: {fileID: 1371545633443294}
-  InfoTextObj: {fileID: 1031291023582644}
+  sprites:
+  - {fileID: 21300000, guid: fa2cb4eaa405b4fb994f9061a8c49796, type: 3}
+  - {fileID: 21300000, guid: 573420382681e4a17aa4e2327cd64bac, type: 3}
 --- !u!114 &114579700327920336
 MonoBehaviour:
   m_ObjectHideFlags: 1

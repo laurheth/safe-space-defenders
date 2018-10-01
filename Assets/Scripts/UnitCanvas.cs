@@ -10,8 +10,13 @@ public class UnitCanvas : MonoBehaviour {
     int currentMP;
     List<GameObject> MaxPips;
     List<GameObject> CurrentPips;
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    private void Awake()
+    {
+        MaxPips = new List<GameObject>();
+        CurrentPips = new List<GameObject>();
+    }
+    void Start () {
         txtobj = transform.Find("Text").gameObject;
         txt = txtobj.GetComponent<Text>();
         txt.text = "";
@@ -19,8 +24,6 @@ public class UnitCanvas : MonoBehaviour {
 
     public void SetMaxMP(int MP) {
         maxMP = MP;
-        MaxPips = new List<GameObject>();
-        CurrentPips = new List<GameObject>();
         GameObject maxpipbar = transform.Find("HealthBar_Max").gameObject;
         GameObject currentpipbar = transform.Find("HealthBar_Current").gameObject;
         MaxPips.Add(maxpipbar.transform.Find("MaxPip").gameObject);
@@ -31,11 +34,21 @@ public class UnitCanvas : MonoBehaviour {
                 CurrentPips.Add(Instantiate(CurrentPips[0], currentpipbar.transform));
             }
         }
+
+        for (int i = 0; i < MaxPips.Count;i++) {
+            if (i<=MP) {
+                MaxPips[i].SetActive(true);
+            }
+            else {
+                MaxPips[i].SetActive(false);
+            }
+        }
+        SetCurrentMP(MP);
     }
 
     public void SetCurrentMP(int MP) {
         for (int i = 0; i < CurrentPips.Count;i++) {
-            if (i<MP) {
+            if (i<=MP) {
                 CurrentPips[i].SetActive(true);
             }
             else {
