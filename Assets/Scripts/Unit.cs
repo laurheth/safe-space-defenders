@@ -102,7 +102,7 @@ public class Unit : MonoBehaviour
         movesLeft = movesPerTurn;
     }
 
-    void CalcResistance() {
+    void CalcResistance(bool recursive=false) {
         int i = Mathf.FloorToInt(transform.position.x);
         int j = Mathf.FloorToInt(transform.position.y);
         int ii, jj;
@@ -112,6 +112,15 @@ public class Unit : MonoBehaviour
             for (jj = -1; jj < 2;jj++) {
                 obj = gridController.GetObjectPrecise(i + ii, j + jj, gameObject);
                 if (obj!=null && obj.tag==this.tag) {
+                    if (recursive) {
+                        if (tag == "Unit")
+                        {
+                            obj.GetComponent<Unit>().CalcResistance();
+                        }
+                        else if (tag=="EnemyUnit") {
+                            obj.GetComponent<EnemyUnit>().CalcResistance();
+                        }
+                    }
                     damageresistance++;
                     damageresistance++;
                 }
@@ -126,6 +135,7 @@ public class Unit : MonoBehaviour
                 }
             }
         }
+        unitCanvas.SetResist(damageresistance);
     }
 
     public bool readyToMove()

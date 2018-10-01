@@ -5,33 +5,45 @@ using UnityEngine.UI;
 
 public class UnitCanvas : MonoBehaviour {
     Text txt;
+    Text resistText;
     GameObject txtobj;
     int maxMP;
     int currentMP;
+    bool started;
     List<GameObject> MaxPips;
-    List<GameObject> CurrentPips;
+    //List<GameObject> CurrentPips;
     // Use this for initialization
     private void Awake()
     {
-        MaxPips = new List<GameObject>();
-        CurrentPips = new List<GameObject>();
+        //MaxPips = new List<GameObject>();
+        setup();
+        //CurrentPips = new List<GameObject>();
+    }
+    void setup() {
+        if (!started)
+        {
+            started = true;
+            MaxPips = new List<GameObject>();
+        }
     }
     void Start () {
         txtobj = transform.Find("Text").gameObject;
         txt = txtobj.GetComponent<Text>();
         txt.text = "";
+        resistText = transform.Find("ResistText").gameObject.GetComponent<Text>();
 	}
 
     public void SetMaxMP(int MP) {
+        setup();
         maxMP = MP;
         GameObject maxpipbar = transform.Find("HealthBar_Max").gameObject;
-        GameObject currentpipbar = transform.Find("HealthBar_Current").gameObject;
+        //GameObject currentpipbar = transform.Find("HealthBar_Current").gameObject;
         MaxPips.Add(maxpipbar.transform.Find("MaxPip").gameObject);
-        CurrentPips.Add(currentpipbar.transform.Find("CurrentPip").gameObject);
+        //CurrentPips.Add(currentpipbar.transform.Find("CurrentPip").gameObject);
         if (MP>1) {
             for (int i = 1; i < MP;i++) {
                 MaxPips.Add(Instantiate(MaxPips[0], maxpipbar.transform));
-                CurrentPips.Add(Instantiate(CurrentPips[0], currentpipbar.transform));
+                //CurrentPips.Add(Instantiate(CurrentPips[0], currentpipbar.transform));
             }
         }
 
@@ -47,14 +59,35 @@ public class UnitCanvas : MonoBehaviour {
     }
 
     public void SetCurrentMP(int MP) {
-        for (int i = 0; i < CurrentPips.Count;i++) {
+        for (int i = 0; i < maxMP;i++) {
             if (i<=MP) {
-                CurrentPips[i].SetActive(true);
+                MaxPips[i].GetComponent<Image>().color = Color.white;
+                //CurrentPips[i].SetActive(true);
             }
             else {
-                CurrentPips[i].SetActive(false);
+                MaxPips[i].GetComponent<Image>().color = Color.black;
+                //CurrentPips[i].SetActive(false);
             }
         }
+    }
+
+    public void SetResist(int resist) {
+        string newtext="";
+        int i;
+        if (resist>0) {
+            resistText.color = Color.cyan;
+            for (i = 0; i < resist;i++) {
+                newtext += "^";
+            }
+        }
+        else if (resist<0) {
+            resistText.color = Color.red;
+            for (i = 0; i < Mathf.Abs(resist); i++)
+            {
+                newtext += "v";
+            }
+        }
+        resistText.text = newtext;
     }
 
     public IEnumerator DamageAnimation(int dmg) {
