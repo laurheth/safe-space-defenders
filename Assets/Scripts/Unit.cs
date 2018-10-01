@@ -24,13 +24,14 @@ public class Unit : MonoBehaviour
     protected TileGridController gridController;
     List<Vector3Int> steps;
     bool dieAfterMove;
-
+    bool doresistcalc;
     UnitCanvas unitCanvas;
     List<Vector3> damagesources;
     public int damageresistance;
     // Use this for initialization
     public virtual void Awake()
     {
+        doresistcalc = true;
         dieAfterMove = false;
         damagesources = new List<Vector3>();
         damageresistance = 0;
@@ -80,6 +81,10 @@ public class Unit : MonoBehaviour
         else if (dieAfterMove) {
             Destroy(gameObject);
         }
+        /*else if (movesLeft<=0 && doresistcalc) {
+            doresistcalc = false;
+            //CalcResistance(true);
+        }*/
     }
 
     // Update is called once per frame
@@ -97,12 +102,13 @@ public class Unit : MonoBehaviour
     }
 
     public void RenewMoves() {
+        doresistcalc = true;
         damagesources.Clear();
         //damageresistance = 0;
         movesLeft = movesPerTurn;
     }
 
-    void CalcResistance(bool recursive=false) {
+    public void CalcResistance(bool recursive=false) {
         int i = Mathf.FloorToInt(transform.position.x);
         int j = Mathf.FloorToInt(transform.position.y);
         int ii, jj;

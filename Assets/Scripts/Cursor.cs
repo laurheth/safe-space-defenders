@@ -15,6 +15,7 @@ public class Cursor : MonoBehaviour {
     bool validpath;
     bool playerturn;
     bool won;
+    bool recalcresist;
     bool lost;
     //bool snaptoentity;
     SpriteRenderer srend;
@@ -31,6 +32,7 @@ public class Cursor : MonoBehaviour {
     Unit.Action currentAction;
 	// Use this for initialization
 	void Start () {
+        recalcresist = true;
         won = false;
         lost = false;
         cam = GameObject.FindGameObjectWithTag("MainCamera");
@@ -98,6 +100,11 @@ public class Cursor : MonoBehaviour {
                 enemyid++;
                 if (enemyid<EnemyUnits.Count) {
                     currentEnemyUnit = EnemyUnits[enemyid];
+                    if (currentEnemyUnit==null) {
+                        EnemyUnits.RemoveAt(enemyid);
+                        enemyid--;
+                        return;
+                    }
                     unit = currentEnemyUnit.gameObject;
                 }
                 else {
@@ -121,6 +128,7 @@ public class Cursor : MonoBehaviour {
                     {
                         punit.RenewMoves();
                     }
+                    recalcresist=true;
                 }
             }
             return;
@@ -237,6 +245,7 @@ public class Cursor : MonoBehaviour {
                     actionMenu.ClearOptions();
                     unit = null;
                     currentAction = null;
+                    recalcresist = true;
                     //currentUnit = null;
                     CheckForEnemyTurn();
                 }
@@ -283,6 +292,21 @@ public class Cursor : MonoBehaviour {
             }
             unit = currentUnit.gameObject;
             actionMenu.DefineOptions(unit);
+            if (recalcresist) {
+                foreach (Unit unt in PlayerUnits) {
+                    if (unt != null)
+                    {
+                        unt.CalcResistance();
+                    }
+                }
+                foreach (EnemyUnit unt in EnemyUnits)
+                {
+                    if (unt != null)
+                    {
+                        unt.CalcResistance();
+                    }
+                }
+            }
         }
 	}
 

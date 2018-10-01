@@ -32,6 +32,7 @@ public class UnitCanvas : MonoBehaviour {
         txt.text = "";
         resistText = transform.Find("ResistText").gameObject.GetComponent<Text>();
         resistText.GetComponent<Text>().fontStyle=FontStyle.Bold;
+        //resistText.GetComponent<Text>().fontSize=
 	}
 
     public void SetMaxMP(int MP) {
