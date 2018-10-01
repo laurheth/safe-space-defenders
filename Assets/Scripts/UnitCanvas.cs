@@ -31,6 +31,7 @@ public class UnitCanvas : MonoBehaviour {
         txt = txtobj.GetComponent<Text>();
         txt.text = "";
         resistText = transform.Find("ResistText").gameObject.GetComponent<Text>();
+        resistText.GetComponent<Text>().fontStyle=FontStyle.Bold;
 	}
 
     public void SetMaxMP(int MP) {
@@ -38,7 +39,10 @@ public class UnitCanvas : MonoBehaviour {
         maxMP = MP;
         GameObject maxpipbar = transform.Find("HealthBar_Max").gameObject;
         //GameObject currentpipbar = transform.Find("HealthBar_Current").gameObject;
-        MaxPips.Add(maxpipbar.transform.Find("MaxPip").gameObject);
+        if (MaxPips.Count == 0)
+        {
+            MaxPips.Add(maxpipbar.transform.Find("MaxPip").gameObject);
+        }
         //CurrentPips.Add(currentpipbar.transform.Find("CurrentPip").gameObject);
         if (MP>1) {
             for (int i = 1; i < MP;i++) {
@@ -46,9 +50,8 @@ public class UnitCanvas : MonoBehaviour {
                 //CurrentPips.Add(Instantiate(CurrentPips[0], currentpipbar.transform));
             }
         }
-
         for (int i = 0; i < MaxPips.Count;i++) {
-            if (i<=MP) {
+            if (i<MP) {
                 MaxPips[i].SetActive(true);
             }
             else {
@@ -62,6 +65,7 @@ public class UnitCanvas : MonoBehaviour {
         for (int i = 0; i < maxMP;i++) {
             if (i<=MP) {
                 MaxPips[i].GetComponent<Image>().color = Color.white;
+                MaxPips[i].transform.SetAsFirstSibling();
                 //CurrentPips[i].SetActive(true);
             }
             else {
