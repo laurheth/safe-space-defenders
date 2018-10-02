@@ -15,6 +15,7 @@ public class TileGridController : MonoBehaviour
     int xmax, ymax;
     bool[,] passable;
     bool[,] nowalking;
+    float[,] pathcache;
     List<Transform> Entities;
     //List<>
     // Use this for initialization
@@ -41,6 +42,7 @@ public class TileGridController : MonoBehaviour
         ymax = collisionMap.cellBounds.yMax;
         passable = new bool[xsize, ysize];
         nowalking = new bool[xsize, ysize];
+        pathcache = new float[xsize, ysize];
         for (int i = 0; i < xsize; i++)
         {
             for (int j = 0; j < ysize; j++)
@@ -159,8 +161,124 @@ public class TileGridController : MonoBehaviour
         return false;
     }
 
-    // Djriska or whomever's algorithm, easier to write imo
-    public void getPath(Vector3Int startPos_w, Vector3Int endPos_w, List<Vector3Int> steps, int maxDist = 50, bool leavemap=false)
+    public void PathFromCache(Vector3Int startPos_w, Vector3Int endPos_w, List<Vector3Int> steps, int maxDist=50) {
+
+        Vector3Int offset = new Vector3Int(xmin, ymin, 0);
+        Vector3Int startPos = startPos_w - offset;
+        Vector3Int endPos = endPos_w - offset;
+        startPos[2] = 0;
+        endPos[2] = 0;
+        int i, j;
+        if (pathcache[endPos.x,endPos.y]>maxDist) {
+            return;
+        }
+
+        Vector3Int currentPos = endPos;
+        Vector3Int nextStep = endPos;
+        float distval;
+        int breaker = 0;
+        steps.Clear();
+        while (currentPos != startPos && breaker < maxDist)
+        {
+            //Debug.Log(currentPos + " " + endPos);
+            steps.Add(currentPos + offset);
+            distval = pathcache[currentPos.x, currentPos.y];
+            for (i = -1; i < 2; i++)
+            {
+                for (j = -1; j < 2; j++)
+                {
+                    if (pathcache[currentPos.x + i, currentPos.y + j] < distval)
+                    {
+                        distval = pathcache[currentPos.x + i, currentPos.y + j];
+                        nextStep = currentPos + new Vector3Int(i, j, 0);
+                    }
+                }
+            }
+            currentPos = nextStep;
+            breaker++;
+        }
+        steps.Add(currentPos + offset);
+        steps.Reverse();
+        //Remove duplicates
+        if (steps.Count > 0)
+        {
+            i = 0;
+            Vector3Int lastVect = Vector3Int.zero;
+            while (i < steps.Count)
+            {
+                if (steps[i] == lastVect)
+                {
+                    steps.RemoveAt(i);
+                }
+                else
+                {
+                    lastVect = steps[i];
+                    i++;
+                }
+            }
+        }
+
+    }
+
+    public void FillPathCache(Vector3Int startPos_w,int maxDist=50) {
+        startPos_w[2] = 0;
+        int i, j, ii, jj;
+        for (i = 0; i < xsize;i++) {
+            for (j = 0; j < ysize;j++) {
+                pathcache[i, j] = maxDist+1;
+            }
+        }
+        Vector3Int offset = new Vector3Int(xmin, ymin, 0);
+        Vector3Int startPos = startPos_w - offset;
+        pathcache[startPos.x, startPos.y] = 0;
+        //int currentdist = 0;
+        bool nochange = false;
+        int sxmin, sxmax, symin, symax;
+        sxmin = startPos.x - 1;
+        sxmax = startPos.x + 1;
+        symin = startPos.y - 1;
+        symax = startPos.y + 1;
+        float steplength;
+        int breaker=0;
+        while (!nochange && breaker<100)
+        {
+            breaker++;
+            if (sxmin > 1) { sxmin--; }
+            if (sxmax < xsize - 1) { sxmax++; }
+            if (symin > 1) { symin--; }
+            if (symax < ysize - 1) { symax++; }
+            nochange = true;
+            for (i = sxmin; i < sxmax; i++)
+            {
+                for (j = symin; j < symax; j++)
+                {
+                    //if (Mathf.Approximately(pathcache[i,j],currentdist)) {
+
+                    for (ii = -1; ii < 2; ii++)
+                    {
+                        for (jj = -1; jj < 2; jj++)
+                        {
+                            if (!passable[i, j] || (HasObj(i + xmin, j + ymin)) || !nowalking[i, j])
+                            {
+                                continue;
+                            }
+                            steplength = Mathf.Sqrt(Mathf.Pow(ii, 2) + Mathf.Pow(jj, 2));
+                            if (pathcache[i + ii, j + jj] + steplength+0.0001 < pathcache[i,j])
+                            {
+                                pathcache[i, j] = pathcache[i+ii, j+jj] + steplength;
+                                nochange = false;
+                            }
+                        }
+                    }
+                    //}
+                }
+            }
+            //currentdist++;
+        }
+    }
+
+    // Dijkstra's algorithm, easier to write imo
+    public void getPath(Vector3Int startPos_w, Vector3Int endPos_w, List<Vector3Int> steps, int maxDist = 50, bool leavemap = false)
     {//, Unit.ActType todo=Unit.ActType.Movement) {
         startPos_w[2] = 0;
         endPos_w[2] = 0;

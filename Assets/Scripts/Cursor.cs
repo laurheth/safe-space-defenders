@@ -61,7 +61,7 @@ public class Cursor : MonoBehaviour {
 	}
 
 	// Update is called once per frame
-	void LateUpdate () {
+	void Update () {
         
         cx = Input.GetAxis("Horizontal");
         cy = Input.GetAxis("Vertical");
@@ -156,6 +156,9 @@ public class Cursor : MonoBehaviour {
         transform.position=offset+newpos;
         if (oldpos != newpos)
         {
+            //Debug.Log("old"+oldpos);
+            //Debug.Log("new"+newpos);
+            oldpos = newpos+Vector3Int.zero;;
             validpath = false;
             if (gridController.validPos(transform.position,currentAction))
             {
@@ -177,7 +180,9 @@ public class Cursor : MonoBehaviour {
                             break;
                         case Unit.ActType.Melee:
                         case Unit.ActType.Movement:
-                            gridController.getPath(Vector3Int.FloorToInt(unit.transform.position),
+                            /*gridController.getPath(Vector3Int.FloorToInt(unit.transform.position),
+                                                   newpos, linesteps, maxdist);*/
+                            gridController.PathFromCache(Vector3Int.FloorToInt(unit.transform.position),
                                                    newpos, linesteps, maxdist);
                             break;
                     }
@@ -195,20 +200,20 @@ public class Cursor : MonoBehaviour {
                     else {
                         srend.color = Color.red;
                         line.enabled = false;
-                        oldpos = Vector3Int.zero;
+                        //oldpos = Vector3Int.zero;
                     }
                 }
                 else {
                     srend.color = Color.clear;
                     line.enabled = false;
-                    oldpos = Vector3Int.zero;
+                    //oldpos = Vector3Int.zero;
                 }
             }
             else
             {
                 srend.color = Color.clear;
                 line.enabled = false;
-                oldpos = Vector3Int.zero;
+                //oldpos = Vector3Int.zero;
             }
         }/*
         if (Input.GetButtonDown("Cancel")) {
@@ -244,8 +249,12 @@ public class Cursor : MonoBehaviour {
                         }
                         //linesteps.RemoveAll(linesteps[linesteps.Count - 1]);
                     }
-
+                    if (linesteps.Count > 0)
+                    {
+                        gridController.FillPathCache(linesteps[linesteps.Count - 1], currentUnit.MoveDistance);
+                    }
                     currentUnit.GiveMoveOrder(linesteps);
+
                     /*foreach (Vector3Int thisone in linesteps)
                     {
                         Debug.Log("After: " + linesteps);
@@ -280,6 +289,7 @@ public class Cursor : MonoBehaviour {
                             unit = hit.transform.gameObject;
                             currentUnit = unit.GetComponent<Unit>();
                             actionMenu.DefineOptions(unit);
+                            gridController.FillPathCache(Vector3Int.FloorToInt(unit.transform.position), currentUnit.MoveDistance);
                         }
                     }
                 }
@@ -287,6 +297,7 @@ public class Cursor : MonoBehaviour {
         }
         // Switch between units
         if (playerturn && (Input.GetButtonDown("Fire3") || (unit==null && (currentUnit==null || currentUnit.readyToMove())) )) {
+            oldpos = Vector3Int.zero;
             if (currentUnit==null && PlayerUnits[0].MovesLeft()) {
                 currentUnit = PlayerUnits[0];
             }
@@ -311,6 +322,7 @@ public class Cursor : MonoBehaviour {
             }
             unit = currentUnit.gameObject;
             actionMenu.DefineOptions(unit);
+            gridController.FillPathCache(Vector3Int.FloorToInt(unit.transform.position), currentUnit.MoveDistance);
             if (recalcresist) {
                 foreach (Unit unt in PlayerUnits) {
                     if (unt != null)
