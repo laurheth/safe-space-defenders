@@ -13,9 +13,9 @@ public class EnemyUnit : Unit {
     {
         base.Awake();
         actions.Clear();
-        actions.Add(new Action("Move", MoveDistance, ActType.Movement, 0));
+        actions.Add(new Action("Move", MoveDistance, ActType.Movement, 0,-1,"","",Color.white));
         //actions.Add(new Action("Blow vuvuzela", 6, ActType.Cone, 6, 6, "EnemyUnit"));
-        actions.Add(new Action("Threatening gesture", 9, ActType.Targetted, 2, 0, "Unit"));
+        actions.Add(new Action("Threatening gesture", 9, ActType.Targetted, 2, 0, "Unit","Threatening gesture >:(",Color.white));
         //actions.Add(new Action("Glitterbomb", 6, ActType.Grenade, 10, 2));
         //actions.Add(new Action("Strike a pose", 0, ActType.Grenade, 10, 20));
         //actions.Add(new Action("Board with a nail in it", MoveDistance, ActType.Melee, 3,0,"Unit"));

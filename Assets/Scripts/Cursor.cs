@@ -108,9 +108,12 @@ public class Cursor : MonoBehaviour {
             if (unit==null) {
                 
                 currentEnemyUnit = EnemyUnits[enemyid];
-                unit = currentEnemyUnit.gameObject;
+                if (currentEnemyUnit != null)
+                {
+                    unit = currentEnemyUnit.gameObject;
+                }
             }
-            if (currentEnemyUnit.MovesLeft()) {
+            if (currentEnemyUnit != null && currentEnemyUnit.MovesLeft()) {
                 if (currentEnemyUnit.readyToMove()) {
                     currentEnemyUnit.RunAI();
                 }

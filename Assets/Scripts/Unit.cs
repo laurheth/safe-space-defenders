@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Unit : MonoBehaviour
 {
@@ -27,10 +28,13 @@ public class Unit : MonoBehaviour
     bool doresistcalc;
     UnitCanvas unitCanvas;
     List<Vector3> damagesources;
+    GameObject effectcanvas;
+    Text effectcanvastext;
     public int damageresistance;
     // Use this for initialization
     public virtual void Awake()
     {
+        
         doresistcalc = true;
         dieAfterMove = false;
         damagesources = new List<Vector3>();
@@ -50,12 +54,18 @@ public class Unit : MonoBehaviour
         //position = Vector3Int.RoundToInt(transform.position - offset);
         gridController = transform.parent.gameObject.GetComponent<TileGridController>();
         //gridController.blockPosition()
-        actions.Add(new Action("Move", MoveDistance, ActType.Movement, 0));
-        actions.Add(new Action("Blow vuvuzela", 6, ActType.Cone, 6,6,"EnemyUnit"));
-        actions.Add(new Action("Finger guns", 9, ActType.Targetted, 6,0,"Unit"));
-        actions.Add(new Action("Glitterbomb", 6, ActType.Grenade, 10,2));
+        actions.Add(new Action("Move", MoveDistance, ActType.Movement, 0,-1,"","",Color.white));
+        actions.Add(new Action("Blow vuvuzela", 6, ActType.Cone, 6,6,"EnemyUnit","DOOT!",Color.white));
+        actions.Add(new Action("Finger guns", 9, ActType.Targetted, 6,0,"Unit","Finger guns",Color.white));
+        actions.Add(new Action("Glitterbomb", 6, ActType.Grenade, 10,2,"","Glitterbomb",Color.white));
         //actions.Add(new Action("Strike a pose", 0, ActType.Grenade, 10, 20));
-        actions.Add(new Action("Bear hug", MoveDistance, ActType.Melee, 6));
+        actions.Add(new Action("Bear hug", MoveDistance, ActType.Melee, 6,-1,"","Bear hug",Color.cyan));
+    }
+
+    void Start()
+    {
+        effectcanvas = GameObject.FindGameObjectWithTag("EffectCanvas");
+        effectcanvastext = effectcanvas.transform.Find("Text").gameObject.GetComponent<Text>();
     }
 
     private void FixedUpdate()
@@ -169,7 +179,9 @@ public class Unit : MonoBehaviour
         ActType type;
         int damage;
         string tagspecific;
-        public Action(string nom, int rng, ActType actType, int dmg, int rng2=-1, string tg="") {
+        Color actioncolor;
+        string attacksound;
+        public Action(string nom, int rng, ActType actType, int dmg, int rng2, string tg, string effsnd,Color clr) {
             menuName = nom;
             range = rng;
             if (rng2<=0) {
@@ -178,6 +190,9 @@ public class Unit : MonoBehaviour
             else {
                 range2 = rng2;
             }
+            attacksound = effsnd;
+
+            actioncolor = clr;
             type = actType;
             damage = dmg;
             tagspecific = tg;
@@ -187,6 +202,12 @@ public class Unit : MonoBehaviour
         }
         public int GetRange() {
             return range;
+        }
+        public Color GetSoundColor() {
+            return actioncolor;
+        }
+        public string GetSound() {
+            return attacksound;
         }
         public int GetRange2() {
             return range2;
@@ -246,14 +267,16 @@ public class Unit : MonoBehaviour
     public bool isDamaged() {
         return Morale < MaxMorale;
     }
-    public void PerformAction(Action todo, Vector3Int target) {
+    public IEnumerator PerformAction(Action todo, Vector3Int target) {
         //movesLeft--;
         List<Transform> transes=null;
         switch (todo.GetActType()) {
             default:
             case ActType.Targetted:
                 GameObject targetMe = gridController.GetObject(target.x,target.y, gameObject);
-                targetMe.GetComponent<Unit>().Damage(todo.GetDamage(),transform.position,gameObject.tag);
+                transes = new List<Transform>();
+                transes.Add(targetMe.transform);
+                //targetMe.GetComponent<Unit>().Damage(todo.GetDamage(),transform.position,gameObject.tag);
                 break;
             case ActType.Cone:
                 transes = gridController.GetInCone(Vector3Int.FloorToInt(transform.position),
@@ -263,6 +286,11 @@ public class Unit : MonoBehaviour
                 transes = gridController.GetInCircle(target, todo.GetRange2());
                 break;
         }
+        Quaternion q;
+        float effspeed = 5;
+        Vector3 direction;
+        Vector3 location;
+        float distance;
         if (transes!=null && transes.Count>0) {
             foreach (Transform trans in transes)
             {
@@ -271,8 +299,43 @@ public class Unit : MonoBehaviour
                         continue;
                     }
                 }
+
+                effectcanvastext.text = todo.GetSound();
+                effectcanvastext.color = todo.GetSoundColor();
+                /*
+                direction = (trans.position - transform.position);
+                effectcanvas.transform.position = transform.position;
+                q = Quaternion.AngleAxis(Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg,Vector3.forward);
+                effectcanvas.transform.rotation = q;
+                distance = direction.magnitude;
+                while (distance>0) {
+                    distance -= effspeed*Time.deltaTime;
+                    effectcanvas.transform.position += direction.normalized * effspeed*Time.deltaTime;
+                    yield return null;
+                }*/
+                location = Vector3.up+(trans.position + transform.position) / 2f;
+                direction = (trans.position - transform.position);
+                distance = direction.magnitude;
+                if (direction.x < 0) { direction *= -1; }
+                q = Quaternion.AngleAxis(Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg, Vector3.forward);
+                effectcanvas.transform.rotation = q;
+                if (distance<4) {
+                    effectcanvas.transform.position = location + Vector3.up;
+                }
+                else {
+                    effectcanvas.transform.position = location;
+                }
+
+                distance = 0.5f;
+                while (distance>0) {
+                    distance -= Time.deltaTime;
+                    effectcanvas.transform.position = location + 0.1f*Vector3.up*Mathf.Sin(2*Mathf.PI*effspeed*Time.time);
+                    yield return null;
+                }
+
                 trans.gameObject.GetComponent<Unit>().Damage(todo.GetDamage(),transform.position,gameObject.tag);
             }
+            effectcanvastext.text = "";
         }
     }
 
@@ -288,7 +351,7 @@ public class Unit : MonoBehaviour
             transform.position = startpos + moved * vec;
             yield return null;
         }
-        PerformAction(todo, target);
+        yield return PerformAction(todo, target);
         yield return null;
         while (moved >0)
         {
