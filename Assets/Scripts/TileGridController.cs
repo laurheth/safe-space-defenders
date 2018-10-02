@@ -161,7 +161,7 @@ public class TileGridController : MonoBehaviour
         return false;
     }
 
-    public void PathFromCache(Vector3Int startPos_w, Vector3Int endPos_w, List<Vector3Int> steps, int maxDist=50) {
+    public void PathFromCache(Vector3Int startPos_w, Vector3Int endPos_w, List<Vector3Int> steps, int maxDist=50,bool ismelee=false) {
 
         Vector3Int offset = new Vector3Int(xmin, ymin, 0);
         Vector3Int startPos = startPos_w - offset;
@@ -182,7 +182,14 @@ public class TileGridController : MonoBehaviour
         {
             //Debug.Log(currentPos + " " + endPos);
             steps.Add(currentPos + offset);
-            distval = pathcache[currentPos.x, currentPos.y];
+            if (ismelee && currentPos == endPos)
+            {
+                distval = maxDist;
+            }
+            else
+            {
+                distval = pathcache[currentPos.x, currentPos.y];
+            }
             for (i = -1; i < 2; i++)
             {
                 for (j = -1; j < 2; j++)

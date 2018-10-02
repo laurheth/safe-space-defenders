@@ -182,9 +182,11 @@ public class Cursor : MonoBehaviour {
                             }
                             break;
                         case Unit.ActType.Melee:
+                            gridController.getPath(Vector3Int.FloorToInt(unit.transform.position),
+                                                   newpos, linesteps, maxdist);
+                            break;
                         case Unit.ActType.Movement:
-                            /*gridController.getPath(Vector3Int.FloorToInt(unit.transform.position),
-                                                   newpos, linesteps, maxdist);*/
+                            /**/
                             gridController.PathFromCache(Vector3Int.FloorToInt(unit.transform.position),
                                                    newpos, linesteps, maxdist);
                             break;
@@ -297,6 +299,9 @@ public class Cursor : MonoBehaviour {
                     }
                 }
             }
+        }
+        if (Input.GetButtonDown("Fire2")) {
+            oldpos = Vector3Int.zero;
         }
         // Switch between units
         if (playerturn && (Input.GetButtonDown("Fire3") || (unit==null && (currentUnit==null || currentUnit.readyToMove())) )) {
