@@ -83,6 +83,7 @@ public class Unit : MonoBehaviour
                 if (steps.Count == 1)
                 {
                     rb.MovePosition(new Vector3(steps[0].x, steps[0].y, 0) + offset);
+                    //rb.MovePosition(new Vector2(steps[0].x,steps[0].y));
                 }
                 currentVect = Vector3.zero;
                 steps.RemoveAt(0);

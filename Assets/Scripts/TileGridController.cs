@@ -107,7 +107,7 @@ public class TileGridController : MonoBehaviour
             //if (todo)
             //Debug.Log(todo.GetActType());
         }
-        Vector3Int pos = grid.WorldToCell(pos_w);
+        Vector3Int pos = grid.WorldToCell(pos_w); // NOTE TO SELF: USE THIS MORE
         if (pos.x > xmin && pos.x < xmax && pos.y > ymin && pos.y < ymax)
         {
             pos[2] = 0;

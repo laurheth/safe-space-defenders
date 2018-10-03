@@ -64,7 +64,7 @@ public class UnitCanvas : MonoBehaviour {
 
     public void SetCurrentMP(int MP) {
         for (int i = 0; i < maxMP;i++) {
-            if (i<=MP) {
+            if (i<MP) {
                 MaxPips[i].GetComponent<Image>().color = Color.white;
                 MaxPips[i].transform.SetAsFirstSibling();
                 //CurrentPips[i].SetActive(true);
