@@ -31,10 +31,11 @@ public class Unit : MonoBehaviour
     GameObject effectcanvas;
     Text effectcanvastext;
     public int damageresistance;
+    public int adjacency;
     // Use this for initialization
     public virtual void Awake()
     {
-        
+        adjacency = 1;
         doresistcalc = true;
         dieAfterMove = false;
         damagesources = new List<Vector3>();
@@ -138,15 +139,23 @@ public class Unit : MonoBehaviour
                             obj.GetComponent<EnemyUnit>().CalcResistance();
                         }
                     }
-                    damageresistance++;
-                    damageresistance++;
+                    damageresistance+=obj.GetComponent<Unit>().adjacency;
+                    //damageresistance++;
+                    //damageresistance++;
                 }
             }
         }
+        // Damage resistance reduction for being surrounded
         if (damagesources.Count>1) {
             for (ii = 0; ii < damagesources.Count-1;ii++) {
                 for (jj = ii + 1; jj < damagesources.Count;jj++) {
-                    if (Vector3.Dot(damagesources[ii].normalized,damagesources[jj].normalized)<0.5) {
+                    // small bonus for 60 degree diff
+                    if (Vector3.Dot(damagesources[ii].normalized,damagesources[jj].normalized)<0.51) {
+                        damageresistance--;
+                    }
+                    // larger for 90 degree & greater
+                    if (Vector3.Dot(damagesources[ii].normalized, damagesources[jj].normalized) < 0)
+                    {
                         damageresistance--;
                     }
                 }
@@ -364,7 +373,7 @@ public class Unit : MonoBehaviour
         animating = false;
     }
 
-    public void SetDetails(string newname, string newpronouns, int newmorale, int newmove, Sprite newsprite, List<Action> newactions) {
+    public void SetDetails(string newname, string newpronouns, int newmorale, int newmove, Sprite newsprite, List<Action> newactions, int newadj) {
         gameObject.name = newname;
         GetComponent<SpriteRenderer>().sprite = newsprite;
         actions.Clear();
@@ -377,5 +386,6 @@ public class Unit : MonoBehaviour
         MoveDistance = newmove;
         unitCanvas.SetMaxMP(MaxMorale);
         unitCanvas.SetCurrentMP(MaxMorale);
+        adjacency = newadj;
     }
 }

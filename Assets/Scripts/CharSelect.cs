@@ -18,6 +18,7 @@ public class CharSelect : MonoBehaviour {
     Text infotext;
     int morale;
     int move;
+    int adjacency;
     List<Unit.Action> actions;
 
     //string[]
@@ -54,7 +55,7 @@ public class CharSelect : MonoBehaviour {
         switch (Classes.options[Classes.value].text) {
             default:
             case "Vuvuzelist":
-                infotext.text = "Morale: 8\nMove: 6\nSkills:\nVuvuzela blow +4\n" +
+                infotext.text = "Skills:\nVuvuzela blow +4\n" +
                     "Rousing toot +3\nVuvuzela Duelist +6\n";
                 img.sprite = sprites[0];
                 img.rectTransform.sizeDelta = new Vector3(32, 64);
@@ -64,9 +65,10 @@ public class CharSelect : MonoBehaviour {
                 actions.Add(new Unit.Action("Blow vuvuzela", 6, Unit.ActType.Cone, 4, 6, "EnemyUnit","DOOT!",Color.white));
                 actions.Add(new Unit.Action("Rousing toot", 6, Unit.ActType.Cone, 3, 6, "Unit","TOOT TOOT!",Color.cyan));
                 actions.Add(new Unit.Action("Vuvuzela Duelist", move, Unit.ActType.Melee, 6, 6, "EnemyUnit","Vuvuzela THWACK!",Color.white));
+                adjacency = 1;
                 break;
             case "Doggo":
-                infotext.text = "Morale: 4\nMove: 8\nSkills:\nBork +4\nGrowl +6\nGood dog +10\n";
+                infotext.text = "Skills:\nBork +4\nGrowl +6\nGood dog +10\n";
                 img.sprite = sprites[1];
                 img.rectTransform.sizeDelta = new Vector3(32, 32);
                 morale = 4;
@@ -74,16 +76,18 @@ public class CharSelect : MonoBehaviour {
                 actions.Add(new Unit.Action("Move", move, Unit.ActType.Movement, 0,-1,"","",Color.white));
                 actions.Add(new Unit.Action("Bork", 0, Unit.ActType.Grenade, 4,10,"Unit","BORK! :D",Color.cyan));
                 actions.Add(new Unit.Action("Growl", 10, Unit.ActType.Targetted, 6, -1, "EnemyUnit","GRRR! >:F",Color.white));
+                adjacency = 2;
                 //actions.Add(new Action("Strike a pose", 0, ActType.Grenade, 10, 20));
                 break;
 
         }
+        infotext.text = "Morale: " + morale + "\nMove: " + move + "\nAdjacency: " + adjacency + "\n" + infotext.text;
 //gameObject.Component
 
     }
 
     public void ApplyDetails(Unit theunit) {
-        theunit.SetDetails(Name.text, Pronouns.text, morale, move, img.sprite, actions);
+        theunit.SetDetails(Name.text, Pronouns.text, morale, move, img.sprite, actions,adjacency);
         Destroy(gameObject);
     }
 	// Update is called once per frame
