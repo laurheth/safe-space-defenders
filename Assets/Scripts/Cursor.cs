@@ -155,6 +155,11 @@ public class Cursor : MonoBehaviour {
             }
             return;
         }
+        if (currentUnit!=null && currentUnit.readyToMove() && !currentUnit.MovesLeft()) {
+            currentUnit = null;
+            unit = null;
+            return;
+        }
         newpos = Vector3Int.RoundToInt(Camera.main.ScreenToWorldPoint(Input.mousePosition) - offset);
         transform.position=offset+newpos;
         if (oldpos != newpos)

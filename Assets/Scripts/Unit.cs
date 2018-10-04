@@ -32,9 +32,11 @@ public class Unit : MonoBehaviour
     Text effectcanvastext;
     public int damageresistance;
     public int adjacency;
+    int bonus;
     // Use this for initialization
     public virtual void Awake()
     {
+        bonus = 0;
         adjacency = 1;
         doresistcalc = true;
         dieAfterMove = false;
@@ -118,6 +120,8 @@ public class Unit : MonoBehaviour
         damagesources.Clear();
         //damageresistance = 0;
         movesLeft = movesPerTurn;
+        /*if (bonus > 0) { bonus--; }
+        else if (bonus < 0) { bonus++; }*/
     }
 
     public void CalcResistance(bool recursive=false) {
@@ -125,7 +129,7 @@ public class Unit : MonoBehaviour
         int j = Mathf.FloorToInt(transform.position.y);
         int ii, jj;
         GameObject obj;
-        damageresistance = 0;
+        damageresistance = bonus;
         for (ii = -1; ii < 2;ii++) {
             for (jj = -1; jj < 2;jj++) {
                 obj = gridController.GetObjectPrecise(i + ii, j + jj, gameObject);
@@ -179,6 +183,16 @@ public class Unit : MonoBehaviour
         }
     }
 
+    public void SetBonus(int newbonus) {
+        if (newbonus > 0)
+        {
+            bonus = Mathf.Min(newbonus,bonus+newbonus);
+        }
+        else if (newbonus<0) {
+            bonus = Mathf.Max(newbonus, bonus + newbonus);
+        }
+    }
+
     public enum ActType { Movement, Melee, Targetted, Cone, Grenade };
 
     //[System.Serializable]
@@ -188,12 +202,14 @@ public class Unit : MonoBehaviour
         int range2;
         ActType type;
         int damage;
+        int hexdamage;
         string tagspecific;
         Color actioncolor;
         string attacksound;
-        public Action(string nom, int rng, ActType actType, int dmg, int rng2, string tg, string effsnd,Color clr) {
+        public Action(string nom, int rng, ActType actType, int dmg, int rng2, string tg, string effsnd,Color clr,int hexdmg=0) {
             menuName = nom;
             range = rng;
+            hexdamage = hexdmg;
             if (rng2<=0) {
                 range2 = rng;
             }
@@ -227,6 +243,9 @@ public class Unit : MonoBehaviour
         }
         public int GetDamage() {
             return Random.Range(damage/2,(damage*3)/2);
+        }
+        public int GetHexDamage() {
+            return hexdamage;
         }
         public string GetTag() {
             return tagspecific;
@@ -264,6 +283,7 @@ public class Unit : MonoBehaviour
     public IEnumerator QueueAction(Action todo, Vector3Int target) {
         //Action todo_updated = new Action(todo.GetName)
         yield return null;
+        movesLeft -= 2;
         Debug.Log("Action Queued");
         while (!readyToMove()) {
             //Debug.Log("Waiting...");
@@ -343,14 +363,18 @@ public class Unit : MonoBehaviour
                     yield return null;
                 }
 
-                trans.gameObject.GetComponent<Unit>().Damage(todo.GetDamage(),transform.position,gameObject.tag);
+                trans.gameObject.GetComponent<Unit>().Damage(bonus+todo.GetDamage(),transform.position,gameObject.tag);
+                if (todo.GetHexDamage() != 0)
+                {
+                    trans.gameObject.GetComponent<Unit>().SetBonus(todo.GetHexDamage());
+                }
             }
             effectcanvastext.text = "";
         }
     }
 
     public IEnumerator AttackAnimation(Action todo, Vector3Int target) {
-        movesLeft--;
+        movesLeft-=2;
         animating = true;
         Vector3 startpos = transform.position + Vector3.zero;
         Vector3 vec = (new Vector3(target.x, target.y, 0) - startpos).normalized;
@@ -373,9 +397,11 @@ public class Unit : MonoBehaviour
         animating = false;
     }
 
-    public void SetDetails(string newname, string newpronouns, int newmorale, int newmove, Sprite newsprite, List<Action> newactions, int newadj) {
+    public void SetDetails(string newname, string newpronouns, int newmorale, int newmove, Sprite newsprite, List<Action> newactions, int newadj,Sprite detailsprite) {
         gameObject.name = newname;
         GetComponent<SpriteRenderer>().sprite = newsprite;
+        //Debug.Log(transform.Find("DetailsSprite").name);
+        transform.Find("DetailsSprite").gameObject.GetComponent<SpriteRenderer>().sprite = detailsprite;
         actions.Clear();
         for (int i = 0; i < newactions.Count; i++)
         {
