@@ -9,6 +9,7 @@ public class CharSelect : MonoBehaviour {
     GameObject ClassInputObj;
     GameObject InfoTextObj;
     GameObject SpriteObj;
+    GameObject SkinObj;
     Image img;
     Image imgdetails;
     //public string[] classes;
@@ -17,11 +18,14 @@ public class CharSelect : MonoBehaviour {
     InputField Name;
     InputField Pronouns;
     Dropdown Classes;
+    Slider SkinSlider;
     Text infotext;
     int morale;
     int move;
     int adjacency;
     List<Unit.Action> actions;
+    Color whiteskin;
+    Color blackskin;
 
     //string[]
 	// Use this for initialization
@@ -34,6 +38,7 @@ public class CharSelect : MonoBehaviour {
         ClassInputObj = transform.Find("Details/InputClass").gameObject;
         InfoTextObj = transform.Find("InfoText").gameObject;
         SpriteObj = transform.Find("BG/CharImg").gameObject;
+        SkinObj = transform.Find("Details/SkinSlider").gameObject;
 
         img = SpriteObj.GetComponent<Image>();
         imgdetails = transform.Find("BG/CharImg/DetailImg").gameObject.GetComponent<Image>();
@@ -41,10 +46,16 @@ public class CharSelect : MonoBehaviour {
         Pronouns = PronounInputObj.GetComponent<InputField>();
         Classes = ClassInputObj.GetComponent<Dropdown>();
         infotext = InfoTextObj.GetComponent<Text>();
+        SkinSlider = SkinObj.GetComponent<Slider>();
 
         Name.onValueChanged.AddListener(delegate { ValueUpdate(); });
         Pronouns.onValueChanged.AddListener(delegate { ValueUpdate(); });
         Classes.onValueChanged.AddListener(delegate { ValueUpdate(); });
+        SkinSlider.onValueChanged.AddListener(delegate { ValueUpdate(); });
+
+        whiteskin = new Color(1f, 228f/255f, 228f/255f);
+        blackskin = new Color(130f/255f,70f/255f,19f/255f);
+
         ValueUpdate();
         //DontDestroyOnLoad(gameObject);
 	}
@@ -54,6 +65,9 @@ public class CharSelect : MonoBehaviour {
         /*Debug.Log(Name.text);
         Debug.Log(Pronouns.text);
         Debug.Log(Classes.options[Classes.value].text);*/
+
+        img.color = whiteskin * SkinSlider.value + blackskin * (1 - SkinSlider.value);
+
         actions.Clear();
         switch (Classes.options[Classes.value].text) {
             default:
@@ -73,8 +87,8 @@ public class CharSelect : MonoBehaviour {
                 adjacency = 1;
                 break;
             case "Witch":
-                infotext.text = "Skills:\nFavourable horoscope +2 +BLESSED\n" +
-                    "Hex +2 +CURSED\nMagic Glitterbomb +2\n";
+                infotext.text = "Skills:\nFavourable horoscope +2\n" +
+                    "Hex +2\nMagic Glitterbomb +2\n";
                 img.sprite = sprites[2];
                 img.rectTransform.sizeDelta = new Vector3(32, 64);
                 imgdetails.gameObject.SetActive(true);
