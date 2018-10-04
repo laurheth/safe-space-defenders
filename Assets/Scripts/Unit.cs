@@ -397,9 +397,10 @@ public class Unit : MonoBehaviour
         animating = false;
     }
 
-    public void SetDetails(string newname, string newpronouns, int newmorale, int newmove, Sprite newsprite, List<Action> newactions, int newadj,Sprite detailsprite) {
+    public void SetDetails(string newname, string newpronouns, int newmorale, int newmove, Sprite newsprite, List<Action> newactions, int newadj,Sprite detailsprite, Color newcolor) {
         gameObject.name = newname;
         GetComponent<SpriteRenderer>().sprite = newsprite;
+        GetComponent<SpriteRenderer>().color = newcolor;
         //Debug.Log(transform.Find("DetailsSprite").name);
         transform.Find("DetailsSprite").gameObject.GetComponent<SpriteRenderer>().sprite = detailsprite;
         actions.Clear();

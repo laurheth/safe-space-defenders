@@ -155,7 +155,7 @@ public class CharSelect : MonoBehaviour {
     }
 
     public void ApplyDetails(Unit theunit) {
-        theunit.SetDetails(Name.text, Pronouns.text, morale, move, img.sprite, actions,adjacency,imgdetails.sprite);
+        theunit.SetDetails(Name.text, Pronouns.text, morale, move, img.sprite, actions,adjacency,imgdetails.sprite,img.color);
         Destroy(gameObject);
     }
 	// Update is called once per frame
