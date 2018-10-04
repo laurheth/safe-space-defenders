@@ -5,6 +5,8 @@ using UnityEngine;
 public class EnemyUnit : Unit {
     public float clusterPercent;
     public float healPercent;
+    //public enum EnemyType { Bigot, Fash, Fedora, Rich };
+    public int typenum;
     //public float movePercent;
     //List<>
     //int actionint;
@@ -13,9 +15,28 @@ public class EnemyUnit : Unit {
     {
         base.Awake();
         actions.Clear();
-        actions.Add(new Action("Move", MoveDistance, ActType.Movement, 0,-1,"","",Color.white));
+        actions.Add(new Action("Move", MoveDistance, ActType.Movement, 0, -1, "", "", Color.white));
+        switch (typenum) {
+            default:
+            case 0: // Bigot
+                actions.Add(new Action("Threatening gesture", 9, ActType.Targetted, 2, 0, "Unit", "Threatening gesture >:(", Color.white));
+                break;
+            case 1: // Fash
+                actions.Add(new Action("Board with a nail in it", MoveDistance, ActType.Melee, 4, 0, "Unit","Board with a nail in it /- /-",Color.white));
+                actions.Add(new Action("Sharing fascist literature", MoveDistance, ActType.Melee, 4, 0, "EnemyUnit", "Check out this FashTube video!", Color.green,1));
+                break;
+            case 2: // Fedorabro
+                actions.Add(new Action("Well actually", 6, ActType.Cone, 3, 6, "Unit","Well ACTUALLY...",Color.white,-1));
+                actions.Add(new Action("Ethics", 6, ActType.Cone, 3, 6, "EnemyUnit", "#FedoraGate", Color.cyan,1));
+                break;
+            case 3: // RichNimbyMan
+                actions.Add(new Action("Money", 0, ActType.Grenade, 10, 20,"EnemyUnit","Seed funds!",Color.green));
+                actions.Add(new Action("Gentrification", 6, ActType.Grenade, 6, 4,"Unit","GENTRIFICATION",Color.red,-1));
+                break;
+        }
+        //actions.Add(new Action("Move", MoveDistance, ActType.Movement, 0,-1,"","",Color.white));
         //actions.Add(new Action("Blow vuvuzela", 6, ActType.Cone, 6, 6, "EnemyUnit"));
-        actions.Add(new Action("Threatening gesture", 9, ActType.Targetted, 2, 0, "Unit","Threatening gesture >:(",Color.white));
+        //actions.Add(new Action("Threatening gesture", 9, ActType.Targetted, 2, 0, "Unit","Threatening gesture >:(",Color.white));
         //actions.Add(new Action("Glitterbomb", 6, ActType.Grenade, 10, 2));
         //actions.Add(new Action("Strike a pose", 0, ActType.Grenade, 10, 20));
         //actions.Add(new Action("Board with a nail in it", MoveDistance, ActType.Melee, 3,0,"Unit"));

@@ -16,13 +16,15 @@ public class TileGridController : MonoBehaviour
     bool[,] passable;
     bool[,] nowalking;
     float[,] pathcache;
+    public int defeatedfoes;
     List<Transform> Entities;
+    GameObject[] Foes;
     //List<>
     // Use this for initialization
     void Start()
     {
         Entities = new List<Transform>();
-
+        defeatedfoes = 0;
         foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Unit"))
         {
             Entities.Add(obj.transform);

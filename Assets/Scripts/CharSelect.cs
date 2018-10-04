@@ -47,7 +47,13 @@ public class CharSelect : MonoBehaviour {
         Classes = ClassInputObj.GetComponent<Dropdown>();
         infotext = InfoTextObj.GetComponent<Text>();
         SkinSlider = SkinObj.GetComponent<Slider>();
+        SkinSlider.value = Random.Range(0f, 1f);
 
+        string[] namelist = { "Andrew", "Adam", "Greg", "Zoe", "Emily", "Evelyn", "Emma", "Grace", "Alexis", "John", "Jennifer","Lauren","Laura","Garfield","Mister","Pupperino","Moira","Alice","Alexanda","Yolande","Nicole","Sarah","David","Richard"};
+        string[] pronounlist = { "She/Her", "She/Her", "She/Her", "She/Her", "He/Him", "He/Him", "They/Them", "Ze/Zer", "Xe/Xir", "Ze/Hir", "They/Them", "Xey/Xem", "Fae/Faer", "Ey/Em", "Xe/Xym", "Ze/Zir" };
+        Pronouns.text = pronounlist[Random.Range(0, pronounlist.Length)];
+        Name.text = namelist[Random.Range(0, namelist.Length)];
+        Classes.value = Random.Range(0,Classes.options.Count);
         Name.onValueChanged.AddListener(delegate { ValueUpdate(); });
         Pronouns.onValueChanged.AddListener(delegate { ValueUpdate(); });
         Classes.onValueChanged.AddListener(delegate { ValueUpdate(); });
@@ -98,7 +104,7 @@ public class CharSelect : MonoBehaviour {
                 actions.Add(new Unit.Action("Move", move, Unit.ActType.Movement, 0, -1, "", "", Color.white));
                 actions.Add(new Unit.Action("Favourable horoscope", 20, Unit.ActType.Targetted, 2, -1, "Unit", "Blessed!", Color.cyan,2));
                 actions.Add(new Unit.Action("Hex", 20, Unit.ActType.Targetted, 2, -1, "EnemyUnit", "Hexed!! >:o", Color.white,-2));
-                actions.Add(new Unit.Action("Magic glitterbomb", 6, Unit.ActType.Grenade, 2, 3, "Unit", "Magic glitter!!", Color.magenta));
+                actions.Add(new Unit.Action("Magic glitterbomb", 6, Unit.ActType.Grenade, 2, 4, "Unit", "Magic glitter!!", Color.magenta));
                 //actions.Add(new Unit.Action("Blow vuvuzela", 6, Unit.ActType.Cone, 4, 6, "EnemyUnit", "DOOT!", Color.white));
                 //actions.Add(new Unit.Action("Rousing toot", 6, Unit.ActType.Cone, 3, 6, "Unit", "TOOT TOOT!", Color.cyan));
                 //actions.Add(new Unit.Action("Vuvuzela Duelist", move, Unit.ActType.Melee, 6, 6, "EnemyUnit", "Vuvuzela THWACK!", Color.white));
@@ -135,9 +141,11 @@ public class CharSelect : MonoBehaviour {
                 adjacency = 1;
                 break;
             case "Doggo":
+                img.color = Color.white;
                 infotext.text = "Skills:\nBork +4\nGrowl +4\nGood dog +10\n";
                 img.sprite = sprites[1];
                 img.rectTransform.sizeDelta = new Vector3(32, 32);
+                imgdetails.sprite = null;
                 imgdetails.gameObject.SetActive(false);
                 morale = 4;
                 move = 10;

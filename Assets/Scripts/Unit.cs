@@ -37,7 +37,7 @@ public class Unit : MonoBehaviour
     public virtual void Awake()
     {
         bonus = 0;
-        adjacency = 1;
+        //adjacency = 1;
         doresistcalc = true;
         dieAfterMove = false;
         damagesources = new List<Vector3>();
@@ -276,6 +276,10 @@ public class Unit : MonoBehaviour
             gridController.getPath(Vector3Int.FloorToInt(transform.position),
                                    Vector3Int.one, steps, 200, true);
             dieAfterMove = true;
+            if (tag == "EnemyUnit")
+            {
+                gridController.defeatedfoes++;
+            }
             //Destroy(gameObject);
         }
     }
