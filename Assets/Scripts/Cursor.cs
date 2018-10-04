@@ -167,9 +167,9 @@ public class Cursor : MonoBehaviour {
             }
             return;
         }
-        else {
+        /*else {
             addnew = true;
-        }
+        }*/
         if (currentUnit!=null && currentUnit.readyToMove() && !currentUnit.MovesLeft()) {
             currentUnit = null;
             unit = null;
@@ -389,6 +389,7 @@ public class Cursor : MonoBehaviour {
         }
         if (EnemyUnits.Count == 0) { won = true; }
         playerturn = false;
+        addnew = true;
     }
 
 }

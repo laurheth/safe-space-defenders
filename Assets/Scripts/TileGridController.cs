@@ -80,24 +80,53 @@ public class TileGridController : MonoBehaviour
         //int postoadd;
         Vector3Int newpos=Vector3Int.zero;
 
-
+        /*
         newpos[0] += Random.Range(xmin,xmax);
         newpos[1] += Random.Range(ymin,ymax);
+        */
+        int side = Random.Range(0, 4);
         int choice;
         GameObject newobj;
         int breaker=1;
-        while (difficulty>0) {
+        while (difficulty > 0)
+        {
             breaker++;
             choice = Random.Range(0, Foes.Length);
             if (breaker % 100 == 0) { choice = 0; }
-            if (FoeCost[choice] <= difficulty) {
-                addedfoes++;
-                difficulty -= FoeCost[choice];
-                newpos[0]++;
-                newpos[1]++;
-                newobj=Instantiate(Foes[choice], newpos, Quaternion.identity, transform);
-                Entities.Add(newobj.transform);
+            while (FoeCost[choice] > difficulty)
+            {
+                choice--;
             }
+            addedfoes++;
+            difficulty -= FoeCost[choice];
+            do
+            {
+                switch (side)
+                {
+                    default:
+                    case 0:
+                        newpos[0] = xmin + 1;
+                        newpos[1] = Random.Range(ymin + 1, ymax - 2);
+                        break;
+                    case 1:
+                        newpos[1] = ymin + 1;
+                        newpos[0] = Random.Range(xmin + 1, xmax - 2);
+                        break;
+                    case 2:
+                        newpos[0] = xmax - 2;
+                        newpos[1] = Random.Range(ymin + 1, ymax - 2);
+                        break;
+                    case 3:
+                        newpos[1] = ymax - 2;
+                        newpos[0] = Random.Range(xmin + 1, xmax - 2);
+                        break;
+                }
+            } while (!passable[newpos[0] - xmin, newpos[1] - ymin] || HasObj(newpos.x, newpos.y));
+            /*newpos[0] = 1;
+            newpos[1] = Random.Range(ymin + 1, ymax - 2);*/
+            newobj = Instantiate(Foes[choice], newpos, Quaternion.identity, transform);
+            Entities.Add(newobj.transform);
+
         }
     }
 
