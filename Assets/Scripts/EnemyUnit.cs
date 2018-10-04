@@ -87,7 +87,7 @@ public class EnemyUnit : Unit {
                 if ((actions[chooseaction].GetTag() == "EnemyUnit") ||
                     (actions[chooseaction].GetTag()=="" && Random.Range(0,100)<healPercent)) {
                     target = gridController.GetObject(pos.x, pos.y, skipself, "EnemyUnit");
-                    if (!target.GetComponent<EnemyUnit>().isDamaged()) {
+                    if (target != null && !target.GetComponent<EnemyUnit>().isDamaged()) {
 
                         continue; // don't heal if not damaged!
                         //success = true;

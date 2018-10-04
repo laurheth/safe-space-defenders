@@ -17,14 +17,17 @@ public class TileGridController : MonoBehaviour
     bool[,] nowalking;
     float[,] pathcache;
     public int defeatedfoes;
+    public int addedfoes;
     List<Transform> Entities;
-    GameObject[] Foes;
+    public GameObject[] Foes;
+    public int[] FoeCost;
     //List<>
     // Use this for initialization
     void Start()
     {
         Entities = new List<Transform>();
         defeatedfoes = 0;
+        addedfoes = 0;
         foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Unit"))
         {
             Entities.Add(obj.transform);
@@ -71,6 +74,31 @@ public class TileGridController : MonoBehaviour
             }
         }
 
+    }
+
+    public void AddPod(int difficulty) {
+        //int postoadd;
+        Vector3Int newpos=Vector3Int.zero;
+
+
+        newpos[0] += Random.Range(xmin,xmax);
+        newpos[1] += Random.Range(ymin,ymax);
+        int choice;
+        GameObject newobj;
+        int breaker=1;
+        while (difficulty>0) {
+            breaker++;
+            choice = Random.Range(0, Foes.Length);
+            if (breaker % 100 == 0) { choice = 0; }
+            if (FoeCost[choice] <= difficulty) {
+                addedfoes++;
+                difficulty -= FoeCost[choice];
+                newpos[0]++;
+                newpos[1]++;
+                newobj=Instantiate(Foes[choice], newpos, Quaternion.identity, transform);
+                Entities.Add(newobj.transform);
+            }
+        }
     }
 
     public Vector3Int RandomValidPos(Unit.Action todo) {

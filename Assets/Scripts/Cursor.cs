@@ -16,6 +16,7 @@ public class Cursor : MonoBehaviour {
     bool playerturn;
     bool won;
     bool recalcresist;
+    bool addnew;
     bool lost;
     //bool snaptoentity;
     SpriteRenderer srend;
@@ -29,21 +30,27 @@ public class Cursor : MonoBehaviour {
     public GameObject winMsg;
     public GameObject loseMsg;
     float cx, cy;
+    int difficulty;
+    //bool added
     Unit.Action currentAction;
 	// Use this for initialization
 	void Start () {
+        difficulty = 1;
+
+        addnew = true;
         recalcresist = true;
         won = false;
         lost = false;
         cam = GameObject.FindGameObjectWithTag("MainCamera");
         enemyid = 0;
-        playerturn = true;
+        playerturn = false;
         //snaptoentity = false;
         actionMenu = actMenu.GetComponent<ActionMenu>();
         validpath = false;
         linesteps = new List<Vector3Int>();
         line = GetComponent<LineRenderer>();
         gridController = transform.parent.gameObject.GetComponent<TileGridController>();
+
         srend = GetComponent<SpriteRenderer>();
         newpos = Vector3Int.zero;
         oldpos = Vector3Int.zero;
@@ -84,6 +91,11 @@ public class Cursor : MonoBehaviour {
             return;
         }
         if (playerturn==false) {
+            if (addnew) {
+                addnew = false;
+                difficulty++;
+                gridController.AddPod(difficulty);
+            }
             if (recalcresist)
             {
                 foreach (Unit unt in PlayerUnits)
@@ -105,7 +117,7 @@ public class Cursor : MonoBehaviour {
 
             //Debug.Log("Enemyturn?");
             // Enemy turn goes here
-            if (unit==null) {
+            if (unit==null && EnemyUnits.Count>0) {
                 
                 currentEnemyUnit = EnemyUnits[enemyid];
                 if (currentEnemyUnit != null)
@@ -154,6 +166,9 @@ public class Cursor : MonoBehaviour {
                 }
             }
             return;
+        }
+        else {
+            addnew = true;
         }
         if (currentUnit!=null && currentUnit.readyToMove() && !currentUnit.MovesLeft()) {
             currentUnit = null;

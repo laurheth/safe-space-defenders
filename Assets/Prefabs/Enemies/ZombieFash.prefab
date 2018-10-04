@@ -286,7 +286,7 @@ MonoBehaviour:
   adjacency: 2
   clusterPercent: 20
   healPercent: 50
-  typenum: 0
+  typenum: 1
 --- !u!114 &114652154088388354
 MonoBehaviour:
   m_ObjectHideFlags: 1
