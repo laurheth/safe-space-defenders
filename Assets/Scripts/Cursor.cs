@@ -134,15 +134,17 @@ public class Cursor : MonoBehaviour {
         {
             return;
         }
+
         if (playerturn==false) {
             if (addnew) {
                 addnew = false;
+                gridController.GenAIMap();
                 if (gridController.addedfoes-gridController.defeatedfoes > 6 || gridController.addedfoes>maxenemies) {
                     return;
                 }
                 difficulty++;
                 gridController.AddPod(difficulty);
-                gridController.GenAIMap();
+                //gridController.GenAIMap();
             }
             if (recalcresist)
             {

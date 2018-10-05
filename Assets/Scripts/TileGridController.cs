@@ -635,12 +635,14 @@ public class TileGridController : MonoBehaviour
         Vector3 v1p, v2p, v3p;
         Vector3 checkme;
         foreach(Transform trans in Entities) {
-            checkme = trans.position;
+            checkme = trans.position;//Vector3Int.FloorToInt(trans.position);
             checkme[2] = 0;
             v1p = checkme - p1;
             v2p = checkme - p2;
             v3p = checkme - p3;
+
             if (Vector3.Dot(v1,v1p)>=0 && Vector3.Dot(v2, v2p) >= 0 && Vector3.Dot(v3, v3p) >= 0) {
+                //toReturn.Add(trans);
                 if (!CheckLine(startpos_w,Vector3Int.FloorToInt(trans.position),range)) {
                     toReturn.Add(trans);
                 }
