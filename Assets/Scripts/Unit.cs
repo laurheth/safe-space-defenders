@@ -189,10 +189,10 @@ public class Unit : MonoBehaviour
     public void SetBonus(int newbonus) {
         if (newbonus > 0)
         {
-            bonus = Mathf.Min(newbonus,bonus+newbonus);
+            bonus = Mathf.Min(4,bonus+newbonus);
         }
         else if (newbonus<0) {
-            bonus = Mathf.Max(newbonus, bonus + newbonus);
+            bonus = Mathf.Max(-4, bonus + newbonus);
         }
     }
 
@@ -262,9 +262,8 @@ public class Unit : MonoBehaviour
             dmg *= -1;
             //Morale -= dmg;
         }
-        if (dmg>0) {
-            if (source.x > 1)
-            {
+        if (dmg>0){
+            if (source != null) {
                 damagesources.Add(source - transform.position);
             }
             CalcResistance();
