@@ -86,11 +86,13 @@ public class EnemyUnit : Unit {
             int chooseaction = 0;
             //string targettag = "Unit";
             GameObject skipself;
-
-            while (breaker<10 && !success) {
+            chooseaction = Random.Range(1, actions.Count);
+            while (breaker<actions.Count-1 && !success) { // try each attack once, instead of repeating fruitlessly
                 breaker++;
                 skipself = gameObject;
-                chooseaction = Random.Range(1, actions.Count);
+                chooseaction++;
+                if (chooseaction>=actions.Count) { chooseaction=1; } // cycle instead of being random
+                //chooseaction = Random.Range(1, actions.Count);
                 //Debug.Log(actions[chooseaction].GetTag());
                 if (actions[chooseaction].GetRange() == 0) { skipself = null; }
                 if ((actions[chooseaction].GetTag() == "EnemyUnit") ||
