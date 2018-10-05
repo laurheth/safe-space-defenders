@@ -7,6 +7,7 @@ public class EnemyUnit : Unit {
     public float healPercent;
     //public enum EnemyType { Bigot, Fash, Fedora, Rich };
     public int typenum;
+    //public int minaidist;
     //public float movePercent;
     //List<>
     //int actionint;
@@ -52,9 +53,14 @@ public class EnemyUnit : Unit {
     List<Vector3Int> linesteps;// = new List<Vector3Int>();
 
     public void RunAI() {
+        if (Morale <= 0) 
+        { 
+            movesLeft = 0;
+            return;
+        }
         pos = Vector3Int.FloorToInt(transform.position);
         pos[2] = 0;
-        //Debug.Log("AI?");
+        Debug.Log("AI?");
         int breaker = 0;
         bool success = false;
         //int i;
@@ -72,13 +78,16 @@ public class EnemyUnit : Unit {
         if (movesLeft>(movesPerTurn-1)) {
 
             DoMoveAction();
+            //movesLeft = 0;
+            //return;
 
         }
         else {
             int chooseaction = 0;
             //string targettag = "Unit";
             GameObject skipself;
-            while (breaker<100 && !success) {
+
+            while (breaker<10 && !success) {
                 breaker++;
                 skipself = gameObject;
                 chooseaction = Random.Range(1, actions.Count);
@@ -128,7 +137,7 @@ public class EnemyUnit : Unit {
                     i = 0;
                     while (i < linesteps.Count)
                     {
-                        if (linesteps[i] == Vector3Int.FloorToInt(target.transform.position))
+                        if (linesteps[i] == linesteps[linesteps.Count - 1])
                         {
                             linesteps.RemoveAt(i);
                         }
@@ -137,6 +146,17 @@ public class EnemyUnit : Unit {
                             i++;
                         }
                     }
+                    /*while (i < linesteps.Count)
+                    {
+                        if (linesteps[i] == Vector3Int.FloorToInt(target.transform.position))
+                        {
+                            linesteps.RemoveAt(i);
+                        }
+                        else
+                        {
+                            i++;
+                        }
+                    }*/
                     GiveMoveOrder(linesteps);
                 }
                 else {
@@ -145,37 +165,50 @@ public class EnemyUnit : Unit {
             }
         }
         //gridController()
+        Debug.Log("AI done");
     }
 
-    void DoMoveAction() {
+    void DoMoveAction()
+    {
         float rnd = Random.Range(0, 100);
-        //GameObject target;
-        //Vector3Int pos = Vector3Int.FloorToInt(transform.position);
-        //List<Vector3Int> linesteps = new List<Vector3Int>();
-        if (rnd > clusterPercent)
+
+        List<Vector3> options =
+                gridController.availablesquares(Vector3Int.FloorToInt(transform.position),
+                                               MoveDistance);
+        //options.Sort()
+        float minz;
+        int minind;
+        int breaker = 0;
+        linesteps.Clear();
+        while (linesteps.Count == 0 && options.Count > 0 && breaker < 100)
         {
-            target = gridController.GetObject(pos.x, pos.y, gameObject, "Unit"); // Move to playerunit
-        }
-        else
-        {
-            target = gridController.GetObject(pos.x, pos.y, gameObject, "EnemyUnit"); // Cluster
-        }
-        if (target != null)
-        {
-            gridController.getPath(Vector3Int.RoundToInt(transform.position - offset),
-                                   Vector3Int.FloorToInt(target.transform.position),
-                                   linesteps);
-        }
-        else {
-            int breaker=0;
-            while (linesteps.Count == 0 && breaker < 1000)
+            Debug.Log("Weird here?" + options.Count + name);
+            breaker++;
+            minind = -1;
+            minz = 10000;
+            //breaker++;
+            for (int i = 0; i < options.Count; i++)
             {
-                breaker++;
-                gridController.getPath(Vector3Int.RoundToInt(transform.position - offset),
-                                       gridController.RandomValidPos(actions[0]),
+                //Debug.Log(options[i].z);
+                if (minz > options[i].z)
+                {
+                    minz = options[i].z;
+                    minind = i;
+                }
+            }
+            if (gridController.validPos(options[minind], actions[0]))
+            {
+                gridController.getPath(Vector3Int.FloorToInt(transform.position),
+                                       Vector3Int.RoundToInt(options[minind]),
                                        linesteps);
             }
+            if (linesteps.Count == 0)
+            {
+                options.RemoveAt(minind);
+            }
         }
+        Debug.Log("Foundone?" + linesteps.Count);
+        //}
         i = 0;
         // min range
         while (i < linesteps.Count)
@@ -191,26 +224,21 @@ public class EnemyUnit : Unit {
         }
         i = 0;
         // remove last step
-        if (target != null)
+        /*while (i < linesteps.Count)
         {
-            while (i < linesteps.Count)
+            if (linesteps[i] == Vector3Int.FloorToInt(target.transform.position))
             {
-                if (linesteps[i] == Vector3Int.FloorToInt(target.transform.position))
-                {
-                    linesteps.RemoveAt(i);
-                }
-                else
-                {
-                    i++;
-                }
+                linesteps.RemoveAt(i);
             }
-            GiveMoveOrder(linesteps);
-        }
+            else
+            {
+                i++;
+            }
+        }*/
+        //Debug.Log(linesteps[linesteps.Count - 1]);
+        //gridController.GenAIMap(linesteps[linesteps.Count - 1].x, linesteps[linesteps.Count - 1].y, -adjacency);
+        GiveMoveOrder(linesteps);
+        //gridController.GenAIMap(linesteps[linesteps.Count - 1].x, linesteps[linesteps.Count - 1].y, -adjacency);
+
     }
-
-    /*bool AttemptAttacks() {
-        bool success = false;
-
-        return success;
-    }*/
 }

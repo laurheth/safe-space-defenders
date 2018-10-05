@@ -189,7 +189,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   offset: {x: 0.5, y: 0.5, z: 0}
   moffset: {x: 0.5, y: 0.5, z: 0}
-  handlocation: {x: -0.35, y: 0.9, z: 0}
+  handlocation: {x: -0.35, y: 0.4, z: 0}
   whiteFlagPrefab: {fileID: 1562412372600848, guid: 19949bbed65f14d8a987f6cbf0409c31,
     type: 2}
   pathcloseness: 0.1
@@ -198,6 +198,7 @@ MonoBehaviour:
   MaxMorale: 4
   Morale: 0
   movesPerTurn: 2
+  movesLeft: 0
   damageresistance: 0
   adjacency: 1
   clusterPercent: 10

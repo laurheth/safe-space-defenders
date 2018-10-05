@@ -11,11 +11,12 @@ public class TileGridController : MonoBehaviour
     public Tilemap nowalkingMap;
     GridLayout grid;
     int xsize, ysize;
-    int xmin, ymin;
-    int xmax, ymax;
+    public int xmin, ymin;
+    public int xmax, ymax;
     bool[,] passable;
     bool[,] nowalking;
     float[,] pathcache;
+    float[,] AIPlanMap;
     public int defeatedfoes;
     public int addedfoes;
     List<Transform> Entities;
@@ -48,6 +49,7 @@ public class TileGridController : MonoBehaviour
         passable = new bool[xsize, ysize];
         nowalking = new bool[xsize, ysize];
         pathcache = new float[xsize, ysize];
+        AIPlanMap = new float[xsize, ysize];
         for (int i = 0; i < xsize; i++)
         {
             for (int j = 0; j < ysize; j++)
@@ -69,6 +71,7 @@ public class TileGridController : MonoBehaviour
                 {
                     nowalking[i, j] = true;
                 }
+
                 //Debug.Log(i + " " + j + " "+passable[i,j]);
                 //Debug.Log(xmin + " " + xmax);
             }
@@ -76,7 +79,7 @@ public class TileGridController : MonoBehaviour
 
     }
 
-    public void AddPod(int difficulty) {
+    public void AddPod(int difficulty, bool fast=false) {
         //int postoadd;
         Vector3Int newpos=Vector3Int.zero;
 
@@ -97,8 +100,7 @@ public class TileGridController : MonoBehaviour
             {
                 choice--;
             }
-            addedfoes++;
-            difficulty -= FoeCost[choice];
+
             do
             {
                 switch (side)
@@ -125,6 +127,11 @@ public class TileGridController : MonoBehaviour
             /*newpos[0] = 1;
             newpos[1] = Random.Range(ymin + 1, ymax - 2);*/
             newobj = Instantiate(Foes[choice], newpos, Quaternion.identity, transform);
+            addedfoes++;
+            difficulty -= FoeCost[choice];
+            if (fast) {
+                newobj.GetComponent<EnemyUnit>().movesLeft += 2;
+            }
             Entities.Add(newobj.transform);
 
         }
@@ -198,7 +205,10 @@ public class TileGridController : MonoBehaviour
     {
         Vector3Int offset = new Vector3Int(xmin, ymin, 0);
         Vector3Int startPos = startPos_w - offset;
+        startPos[2] = 0;
+
         Vector3Int endPos = endPos_w - offset;
+        endPos[2] = 0;
         Vector3 checkPos = startPos_w - offset;
         Vector3 step = (new Vector3(endPos_w.x - startPos_w.x,
                                    endPos_w.y - startPos_w.y,
@@ -218,6 +228,99 @@ public class TileGridController : MonoBehaviour
             if (checkentities && HasObj(i + xmin, j + ymin)) { return true; }
         }
         return false;
+    }
+    // just grab everything within a circle; worry about the details later
+    public List<Vector3> availablesquares(Vector3Int pos, int dist) {
+        List<Vector3> toreturn = new List<Vector3>();
+        //List<Vector3Int> placeholder = new List<Vector3>();
+        for (int i = -dist; i <= dist;i++) {
+            for (int j = -dist; j <= dist;j++) {
+                if (pos.x+i < xmin+1 || pos.x+i > xmax-2 || pos.y+j < ymin+1 || pos.y+j > ymax-2) {
+                    continue;
+                }
+                if (Mathf.Pow(i,2f)+Mathf.Pow(j,2f) <= dist*dist) {
+                    toreturn.Add(new Vector3(pos.x + i, pos.y + j,
+                                               AIPlanMap[pos.x + i - xmin, pos.y + j - ymin]
+                                            ));
+                }
+            }
+        }
+
+        return toreturn;
+    }
+
+    public void GenAIMap(int newx=-1,int newy=-1, int newweight=-1) {
+        int i, j, ii, jj;
+        int weight;
+        if (newweight <0)
+        {
+            for (i = 0; i < xsize; i++)
+            {
+                for (j = 0; j < ysize; j++)
+                {
+                    AIPlanMap[i, j] = xsize*ysize;
+                }
+            }
+            // Add every player unit into the AI map
+            foreach (Transform trans in Entities)
+            {
+                if (trans == null || trans.tag == "EnemyUnit")
+                {
+                    continue;
+                }
+                weight = -trans.gameObject.GetComponent<Unit>().Morale;
+                //Debug.Log(weight);
+                //Debug.Log(Mathf.FloorToInt(trans.position.x - xmin)+" "+Mathf.FloorToInt(trans.position.y - ymin));
+                AIPlanMap[Mathf.FloorToInt(trans.position.x - xmin), Mathf.FloorToInt(trans.position.y - ymin)] = weight;
+                //Debug.Log(AIPlanMap[Mathf.FloorToInt(trans.position.x - xmin), Mathf.FloorToInt(trans.position.y - ymin)]);
+            }
+        }
+        else {
+            AIPlanMap[newx - xmin, newy - ymin] = newweight;
+        }
+        //AIPlanMap[-7 + xmin, -5 + ymin] = 0;
+        bool nochange = false;
+        //int sxmin, sxmax, symin, symax;
+        float steplength;
+        int breaker = 0;
+        while (!nochange && breaker < (xsize*ysize))
+        {
+            //Debug.Log("CYCLE!");
+            breaker++;
+            nochange = true;
+            for (i = 1; i < xsize-1; i++)
+            {
+                for (j = 1; j < ysize-1; j++)
+                {
+                    //if (Mathf.Approximately(pathcache[i,j],currentdist)) {
+                    //Debug.Log(i+" "+j+" "+AIPlanMap[i, j]);
+
+                    if (!passable[i, j] || (HasObj(i + xmin, j + ymin)) || !nowalking[i, j])
+                    {
+                        //Debug.Log(AIPlanMap[i, j]);
+                        continue;
+                    }
+                    for (ii = -1; ii < 2; ii++)
+                    {
+                        for (jj = -1; jj < 2; jj++)
+                        {
+                            
+                            steplength = Mathf.Sqrt(Mathf.Pow(ii, 2) + Mathf.Pow(jj, 2));
+
+                            if (AIPlanMap[i + ii, j + jj] + steplength + 0.0001 < AIPlanMap[i, j])
+                            {
+                                //Debug.Log("blah!");
+                                AIPlanMap[i, j] = AIPlanMap[i + ii, j + jj] + steplength;
+                                nochange = false;
+                            }
+                        }
+                    }
+                    //}
+                }
+            }
+            //currentdist++;
+        }
+
     }
 
     public void PathFromCache(Vector3Int startPos_w, Vector3Int endPos_w, List<Vector3Int> steps, int maxDist=50,bool ismelee=false) {
@@ -530,10 +633,13 @@ public class TileGridController : MonoBehaviour
         Vector3 v2 = p3 - p2;
         Vector3 v3 = p1 - p3;
         Vector3 v1p, v2p, v3p;
+        Vector3 checkme;
         foreach(Transform trans in Entities) {
-            v1p = trans.position - p1;
-            v2p = trans.position - p2;
-            v3p = trans.position - p3;
+            checkme = trans.position;
+            checkme[2] = 0;
+            v1p = checkme - p1;
+            v2p = checkme - p2;
+            v3p = checkme - p3;
             if (Vector3.Dot(v1,v1p)>=0 && Vector3.Dot(v2, v2p) >= 0 && Vector3.Dot(v3, v3p) >= 0) {
                 if (!CheckLine(startpos_w,Vector3Int.FloorToInt(trans.position),range)) {
                     toReturn.Add(trans);
@@ -549,6 +655,7 @@ public class TileGridController : MonoBehaviour
         Vector3 startpos = new Vector3(startpos_w[0], startpos_w[1], 0);
         foreach (Transform trans in Entities)
         {
+            startpos[2] = trans.position[2];
             if ((trans.position-startpos).magnitude<=range)
             {
                 if (!CheckLine(startpos_w, Vector3Int.FloorToInt(trans.position), range))
@@ -562,6 +669,9 @@ public class TileGridController : MonoBehaviour
     }
 
     public void RemoveEntity(GameObject obj) {
+        if (obj.tag=="EnemyUnit") {
+            defeatedfoes++;
+        }
         Entities.Remove(obj.transform);
     }
 

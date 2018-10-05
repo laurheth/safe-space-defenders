@@ -24,24 +24,32 @@ public class Cursor : MonoBehaviour {
     List<Unit> PlayerUnits;
     List<EnemyUnit> EnemyUnits;
     public GameObject actMenu;
+    public int maxenemies;
     ActionMenu actionMenu;
     int enemyid;
     GameObject cam;
+    Camera camscript;
     public GameObject winMsg;
     public GameObject loseMsg;
-    float cx, cy;
+    public GameObject occupied;
+    public Vector3[] bounds;
+    Vector3 newcampos;
+    float cx, cy, cz;
     int difficulty;
+    bool firstupdate;
     //bool added
     Unit.Action currentAction;
 	// Use this for initialization
 	void Start () {
         difficulty = 1;
-
+//occupied.
         addnew = true;
         recalcresist = true;
         won = false;
         lost = false;
         cam = GameObject.FindGameObjectWithTag("MainCamera");
+        newcampos = cam.transform.position;
+        camscript = cam.GetComponent<Camera>();
         enemyid = 0;
         playerturn = false;
         //snaptoentity = false;
@@ -60,23 +68,59 @@ public class Cursor : MonoBehaviour {
         {
             PlayerUnits.Add(obj.GetComponent<Unit>());
         }
+
+        /*for (int i = 0; i < 4;i++)
+        {
+            difficulty++;
+            gridController.AddPod(difficulty);
+        }*/
+
         EnemyUnits.Clear();
         foreach (GameObject obj in GameObject.FindGameObjectsWithTag("EnemyUnit"))
         {
             EnemyUnits.Add(obj.GetComponent<EnemyUnit>());
+            //EnemyUnits[EnemyUnits.Count - 1].movesLeft += 3;
         }
+        firstupdate = true;
 	}
 
 	// Update is called once per frame
 	void Update () {
-        
+        if (firstupdate) {
+            for (int i = 0; i < 2; i++)
+            {
+                difficulty++;
+                gridController.AddPod(difficulty,true);
+            }
+
+            /*EnemyUnits.Clear();
+            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("EnemyUnit"))
+            {
+                EnemyUnits.Add(obj.GetComponent<EnemyUnit>());
+                EnemyUnits[EnemyUnits.Count - 1].movesLeft += 3;
+            }*/
+            gridController.GenAIMap();
+            firstupdate = false;
+        }
+        if (gridController.defeatedfoes > maxenemies && gridController.defeatedfoes>=gridController.addedfoes) { won = true; }
         cx = Input.GetAxis("Horizontal");
         cy = Input.GetAxis("Vertical");
-        cam.transform.position += new Vector3(cx/2f, cy/2f, 0);
+        cz = Input.GetAxis("Mouse ScrollWheel");
+        camscript.orthographicSize -= cz;
+        if (camscript.orthographicSize < 1) { camscript.orthographicSize = 1; }
+        if (camscript.orthographicSize > 15) { camscript.orthographicSize = 15; }
+        newcampos += new Vector3(cx/2f, cy/2f, 0);
+        if (newcampos.x < gridController.xmin+ camscript.orthographicSize * camscript.aspect) { newcampos[0] = gridController.xmin+ camscript.orthographicSize * camscript.aspect; }
+        if (newcampos.x > gridController.xmax - camscript.orthographicSize * camscript.aspect) { newcampos[0] = gridController.xmax - camscript.orthographicSize * camscript.aspect; }
+        if (newcampos.y < gridController.ymin+camscript.orthographicSize) { newcampos[1] = gridController.ymin+ camscript.orthographicSize; }
+        if (newcampos.y > gridController.ymax-camscript.orthographicSize) { newcampos[1] = gridController.ymax- camscript.orthographicSize; }
+        cam.transform.position = newcampos;
+
         //cam.transform.position[1] += cy;
         if (won || lost) {
             if (won) {
                 winMsg.SetActive(true);
+                occupied.SetActive(false);
             }
             else {
                 loseMsg.SetActive(true);
@@ -93,8 +137,12 @@ public class Cursor : MonoBehaviour {
         if (playerturn==false) {
             if (addnew) {
                 addnew = false;
+                if (gridController.addedfoes-gridController.defeatedfoes > 6 || gridController.addedfoes>maxenemies) {
+                    return;
+                }
                 difficulty++;
                 gridController.AddPod(difficulty);
+                gridController.GenAIMap();
             }
             if (recalcresist)
             {
@@ -185,16 +233,19 @@ public class Cursor : MonoBehaviour {
             validpath = false;
             if (gridController.validPos(transform.position,currentAction))
             {
+                
                 if (unit != null && currentAction != null && currentUnit.readyToMove()) {
                     srend.color = Color.cyan;
                     linesteps.Clear();
-
+                    //Debug.Log("Valid pos?");
                     // Define path. Getpath does pathfinding (movement + melee)
                     // Raycast otherwise
                     // public enum ActType { Movement, Melee, Targetted, Cone, LineOfSight, Grenade };
                     switch(currentAction.GetActType()) {
                         default:
-                            
+                            /*Debug.Log(Vector3Int.FloorToInt(unit.transform.position));
+                            Debug.Log(newpos);
+                            Debug.Log(maxdist);*/
                             if (!gridController.CheckLine(Vector3Int.FloorToInt(unit.transform.position),
                                                    newpos,maxdist)) {
                                 linesteps.Add(Vector3Int.FloorToInt(unit.transform.position));
@@ -214,6 +265,7 @@ public class Cursor : MonoBehaviour {
 
                     if (linesteps.Count > 0)
                     {
+                        
                         line.enabled = true;
                         line.positionCount = linesteps.Count;
                         for (int i = 0; i < linesteps.Count; i++)
@@ -383,11 +435,25 @@ public class Cursor : MonoBehaviour {
             }
         }
         EnemyUnits.Clear();
+        bool occupiedbool=false;;
         foreach (GameObject obj in GameObject.FindGameObjectsWithTag("EnemyUnit"))
         {
             EnemyUnits.Add(obj.GetComponent<EnemyUnit>());
+            if (obj.transform.position.x > bounds[0].x && obj.transform.position.x < bounds[1].x &&
+                obj.transform.position.y > bounds[0].y && obj.transform.position.y < bounds[1].y) {
+                occupiedbool = true;
+            }
         }
-        if (EnemyUnits.Count == 0) { won = true; }
+        if (occupiedbool) {
+            occupied.SetActive(true);
+            foreach (Unit playerunit in PlayerUnits) {
+                playerunit.Damage(1, Vector3.zero, "EnemyUnit");
+            }
+        }
+        else {
+            occupied.SetActive(false);
+        }
+        //if (EnemyUnits.Count == 0) { won = true; }
         playerturn = false;
         addnew = true;
     }

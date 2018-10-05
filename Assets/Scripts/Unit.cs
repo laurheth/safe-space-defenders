@@ -19,7 +19,7 @@ public class Unit : MonoBehaviour
     public int MaxMorale;
     public int Morale;
     public int movesPerTurn;
-    protected int movesLeft;
+    public int movesLeft;
     bool animating;
     Rigidbody2D rb;
     protected TileGridController gridController;
@@ -28,6 +28,7 @@ public class Unit : MonoBehaviour
     bool doresistcalc;
     UnitCanvas unitCanvas;
     List<Vector3> damagesources;
+    Vector3 actualpos;
     GameObject effectcanvas;
     Text effectcanvastext;
     public int damageresistance;
@@ -67,6 +68,7 @@ public class Unit : MonoBehaviour
 
     void Start()
     {
+        transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.y);
         effectcanvas = GameObject.FindGameObjectWithTag("EffectCanvas");
         effectcanvastext = effectcanvas.transform.Find("Text").gameObject.GetComponent<Text>();
     }
@@ -77,6 +79,7 @@ public class Unit : MonoBehaviour
         if (steps.Count > 0)
         {
             currentVect = steps[0] + offset - transform.position;
+            currentVect[2] = currentVect[1];
             if ((currentVect).magnitude - speed * Time.fixedDeltaTime > pathcloseness)
             {
                 rb.MovePosition(transform.position + currentVect.normalized * speed * Time.fixedDeltaTime);
@@ -85,7 +88,7 @@ public class Unit : MonoBehaviour
             {
                 if (steps.Count == 1)
                 {
-                    rb.MovePosition(new Vector3(steps[0].x, steps[0].y, 0) + offset);
+                    transform.position = new Vector3(steps[0].x, steps[0].y, steps[0].y) + offset;
                     //rb.MovePosition(new Vector2(steps[0].x,steps[0].y));
                 }
                 currentVect = Vector3.zero;
@@ -253,13 +256,17 @@ public class Unit : MonoBehaviour
     }
 
     public void Damage(int dmg,Vector3 source,string tg="") {
+        if (Morale <= 0) { return; }
         if (gameObject.tag == tg)
         {
             dmg *= -1;
             //Morale -= dmg;
         }
         if (dmg>0) {
-            damagesources.Add(source-transform.position);
+            if (source.x > 1)
+            {
+                damagesources.Add(source - transform.position);
+            }
             CalcResistance();
             dmg = Mathf.Max(1, dmg - damageresistance);
         }
@@ -276,14 +283,19 @@ public class Unit : MonoBehaviour
             gridController.getPath(Vector3Int.FloorToInt(transform.position),
                                    Vector3Int.one, steps, 200, true);
             dieAfterMove = true;
-            if (tag == "EnemyUnit")
+            /*if (tag == "EnemyUnit")
             {
                 gridController.defeatedfoes++;
-            }
+            }*/
             //Destroy(gameObject);
         }
     }
-
+    /*private void LateUpdate()
+    {
+        actualpos = transform.position;
+        actualpos[2] = -actualpos[1];
+        transform.position = actualpos;
+    }*/
     public IEnumerator QueueAction(Action todo, Vector3Int target) {
         //Action todo_updated = new Action(todo.GetName)
         yield return null;
@@ -367,7 +379,7 @@ public class Unit : MonoBehaviour
                     yield return null;
                 }
 
-                trans.gameObject.GetComponent<Unit>().Damage(bonus+todo.GetDamage(),transform.position,gameObject.tag);
+                trans.gameObject.GetComponent<Unit>().Damage(Mathf.Max(1,bonus+todo.GetDamage()),transform.position,gameObject.tag);
                 if (todo.GetHexDamage() != 0)
                 {
                     trans.gameObject.GetComponent<Unit>().SetBonus(todo.GetHexDamage());

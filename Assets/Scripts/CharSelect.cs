@@ -104,7 +104,7 @@ public class CharSelect : MonoBehaviour {
                 actions.Add(new Unit.Action("Move", move, Unit.ActType.Movement, 0, -1, "", "", Color.white));
                 actions.Add(new Unit.Action("Favourable horoscope", 20, Unit.ActType.Targetted, 2, -1, "Unit", "Blessed!", Color.cyan,2));
                 actions.Add(new Unit.Action("Hex", 20, Unit.ActType.Targetted, 2, -1, "EnemyUnit", "Hexed!! >:o", Color.white,-2));
-                actions.Add(new Unit.Action("Magic glitterbomb", 6, Unit.ActType.Grenade, 2, 4, "Unit", "Magic glitter!!", Color.magenta));
+                actions.Add(new Unit.Action("Magic glitterbomb", 6, Unit.ActType.Grenade, 2, 4, "", "Magic glitter!!", Color.magenta));
                 //actions.Add(new Unit.Action("Blow vuvuzela", 6, Unit.ActType.Cone, 4, 6, "EnemyUnit", "DOOT!", Color.white));
                 //actions.Add(new Unit.Action("Rousing toot", 6, Unit.ActType.Cone, 3, 6, "Unit", "TOOT TOOT!", Color.cyan));
                 //actions.Add(new Unit.Action("Vuvuzela Duelist", move, Unit.ActType.Melee, 6, 6, "EnemyUnit", "Vuvuzela THWACK!", Color.white));
@@ -121,7 +121,7 @@ public class CharSelect : MonoBehaviour {
                 move = 6;
                 actions.Add(new Unit.Action("Move", move, Unit.ActType.Movement, 0, -1, "", "", Color.white));
                 actions.Add(new Unit.Action("Suns out guns out", 10, Unit.ActType.Targetted, 4, -1, "EnemyUnit", "*FLEXES* :)", Color.white));
-                actions.Add(new Unit.Action("Bear hug", move, Unit.ActType.Melee, 4, -1, "EnemyUnit", "BEAR HUG!! ^.^", Color.cyan));
+                actions.Add(new Unit.Action("Bear hug", move, Unit.ActType.Melee, 4, -1, "Unit", "BEAR HUG!! ^.^", Color.cyan));
                 actions.Add(new Unit.Action("Arm wrestle", move, Unit.ActType.Melee, 6, -1, "EnemyUnit", "Do you even lift, bro :)?", Color.white));
                 adjacency = 1;
                 break;
