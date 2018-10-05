@@ -263,7 +263,7 @@ public class Unit : MonoBehaviour
             //Morale -= dmg;
         }
         if (dmg>0){
-            if (source != null) {
+            if (!float.IsInfinity(source[0])) {
                 damagesources.Add(source - transform.position);
             }
             CalcResistance();

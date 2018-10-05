@@ -447,7 +447,7 @@ public class Cursor : MonoBehaviour {
         if (occupiedbool) {
             occupied.SetActive(true);
             foreach (Unit playerunit in PlayerUnits) {
-                playerunit.Damage(1, null, "EnemyUnit");
+                playerunit.Damage(1, Vector3.positiveInfinity, "EnemyUnit");
             }
         }
         else {
