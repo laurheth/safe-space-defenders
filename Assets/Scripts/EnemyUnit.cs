@@ -23,16 +23,16 @@ public class EnemyUnit : Unit {
                 actions.Add(new Action("Threatening gesture", 9, ActType.Targetted, 2, 0, "Unit", "Threatening gesture >:(", Color.white));
                 break;
             case 1: // Fash
-                actions.Add(new Action("Board with a nail in it", MoveDistance, ActType.Melee, 4, 0, "Unit","Board with a nail in it /- /-",Color.white));
-                actions.Add(new Action("Sharing fascist literature", MoveDistance, ActType.Melee, 4, 0, "EnemyUnit", "Check out this FashTube video!", Color.green,1));
+                actions.Add(new Action("Board with a nail in it", MoveDistance, ActType.Melee, 4, 0, "Unit","Board with a nail in it /- /-",Color.white,0,0));
+                actions.Add(new Action("Sharing fascist literature", MoveDistance, ActType.Melee, 4, 0, "EnemyUnit", "Check out this FashTube video!", Color.green,1,1));
                 break;
             case 2: // Fedorabro
-                actions.Add(new Action("Well actually", 6, ActType.Cone, 3, 6, "Unit","Well ACTUALLY...",Color.white,-1));
-                actions.Add(new Action("Ethics", 6, ActType.Cone, 3, 6, "EnemyUnit", "#FedoraGate", Color.cyan,1));
+                actions.Add(new Action("Well actually", 6, ActType.Cone, 3, 6, "Unit","Well ACTUALLY...",Color.white,-1,0));
+                actions.Add(new Action("Ethics", 6, ActType.Cone, 3, 6, "EnemyUnit", "#FedoraGate", Color.cyan,1,1));
                 break;
             case 3: // RichNimbyMan
-                actions.Add(new Action("Money", 0, ActType.Grenade, 10, 20,"EnemyUnit","Seed funds!",Color.green));
-                actions.Add(new Action("Gentrification", 6, ActType.Grenade, 6, 4,"Unit","GENTRIFICATION",Color.red,-1));
+                actions.Add(new Action("Money", 0, ActType.Grenade, 10, 20,"EnemyUnit","Seed funds!",Color.green,0,1));
+                actions.Add(new Action("Gentrification", 6, ActType.Grenade, 6, 4,"Unit","GENTRIFICATION",Color.red,-1,0));
                 break;
         }
         //actions.Add(new Action("Move", MoveDistance, ActType.Movement, 0,-1,"","",Color.white));

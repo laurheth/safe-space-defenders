@@ -31,12 +31,15 @@ public class Unit : MonoBehaviour
     Vector3 actualpos;
     GameObject effectcanvas;
     Text effectcanvastext;
+    public AudioClip[] sounds;
+    protected AudioSource sndsource;
     public int damageresistance;
     public int adjacency;
     int bonus;
     // Use this for initialization
     public virtual void Awake()
     {
+        sndsource = GetComponent<AudioSource>();
         bonus = 0;
         //adjacency = 1;
         doresistcalc = true;
@@ -59,11 +62,11 @@ public class Unit : MonoBehaviour
         gridController = transform.parent.gameObject.GetComponent<TileGridController>();
         //gridController.blockPosition()
         actions.Add(new Action("Move", MoveDistance, ActType.Movement, 0,-1,"","",Color.white));
-        actions.Add(new Action("Blow vuvuzela", 6, ActType.Cone, 6,6,"EnemyUnit","DOOT!",Color.white));
-        actions.Add(new Action("Finger guns", 9, ActType.Targetted, 6,0,"Unit","Finger guns",Color.white));
-        actions.Add(new Action("Glitterbomb", 6, ActType.Grenade, 10,2,"","Glitterbomb",Color.white));
+        actions.Add(new Action("Blow vuvuzela", 6, ActType.Cone, 6,6,"EnemyUnit","DOOT!",Color.white,0,4));
+        actions.Add(new Action("Finger guns", 9, ActType.Targetted, 6,0,"Unit","Finger guns",Color.white,0,1));
+        actions.Add(new Action("Glitterbomb", 6, ActType.Grenade, 10,2,"","Glitterbomb",Color.white,0,6));
         //actions.Add(new Action("Strike a pose", 0, ActType.Grenade, 10, 20));
-        actions.Add(new Action("Bear hug", MoveDistance, ActType.Melee, 6,-1,"","Bear hug",Color.cyan));
+        actions.Add(new Action("Bear hug", MoveDistance, ActType.Melee, 6,-1,"","Bear hug",Color.cyan,0,0));
     }
 
     void Start()
@@ -209,7 +212,9 @@ public class Unit : MonoBehaviour
         string tagspecific;
         Color actioncolor;
         string attacksound;
-        public Action(string nom, int rng, ActType actType, int dmg, int rng2, string tg, string effsnd,Color clr,int hexdmg=0) {
+        int sndclip;
+        public Action(string nom, int rng, ActType actType, int dmg, int rng2, string tg, string effsnd,Color clr,int hexdmg=0,int newsndclip=0) {
+            sndclip = newsndclip;
             menuName = nom;
             range = rng;
             hexdamage = hexdmg;
@@ -225,6 +230,9 @@ public class Unit : MonoBehaviour
             type = actType;
             damage = dmg;
             tagspecific = tg;
+        }
+        public int GetSoundClip() {
+            return sndclip;
         }
         public string GetName() {
             return menuName;
@@ -370,7 +378,7 @@ public class Unit : MonoBehaviour
                 else {
                     effectcanvas.transform.position = location;
                 }
-
+                sndsource.PlayOneShot(sounds[todo.GetSoundClip()]);
                 distance = 0.5f;
                 while (distance>0) {
                     distance -= Time.deltaTime;
