@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Cursor : MonoBehaviour {
     TileGridController gridController;
@@ -35,12 +36,14 @@ public class Cursor : MonoBehaviour {
     public Vector3[] bounds;
     Vector3 newcampos;
     float cx, cy, cz;
+    float restartcounter;
     int difficulty;
     bool firstupdate;
     //bool added
     Unit.Action currentAction;
 	// Use this for initialization
 	void Start () {
+        restartcounter = 0;
         difficulty = 1;
 //occupied.
         addnew = true;
@@ -82,6 +85,7 @@ public class Cursor : MonoBehaviour {
             //EnemyUnits[EnemyUnits.Count - 1].movesLeft += 3;
         }
         firstupdate = true;
+        //won = true;
 	}
 
 	// Update is called once per frame
@@ -118,6 +122,7 @@ public class Cursor : MonoBehaviour {
 
         //cam.transform.position[1] += cy;
         if (won || lost) {
+            restartcounter += Time.deltaTime;
             if (won) {
                 winMsg.SetActive(true);
                 occupied.SetActive(false);
@@ -125,6 +130,10 @@ public class Cursor : MonoBehaviour {
             else {
                 loseMsg.SetActive(true);
             }
+            if (restartcounter > 10) {
+                SceneManager.LoadScene("TeamSelect");
+            }
+
             return;
         }
         if (currentUnit!=null && !currentUnit.readyToMove()) {
