@@ -43,6 +43,7 @@ public class Cursor : MonoBehaviour {
     public float difficulty;
     public float difficultyincreaserate;
     bool firstupdate;
+    float quitbutton;
     //bool added
     Unit.Action currentAction;
     // Use this for initialization
@@ -53,6 +54,7 @@ public class Cursor : MonoBehaviour {
         maxenemies = 20;
     }
     void Start () {
+        quitbutton = 0;
         restartcounter = 0;
         difficulty = 1;
 //occupied.
@@ -101,6 +103,21 @@ public class Cursor : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+        if (Input.GetKeyDown(KeyCode.M)) {
+            cam.GetComponent<AudioSource>().enabled = !cam.GetComponent<AudioSource>().enabled;
+        }
+        if (Input.GetButton("Cancel")) {
+            //Debug.Log(quitbutton);
+            quitbutton += Time.deltaTime;
+            if (quitbutton>1) {
+                //Debug.Log("quit");
+                Application.Quit();
+            }
+        }
+        else {
+            quitbutton -= Time.deltaTime;
+            if (quitbutton < 0) { quitbutton = 0; }
+        }
         if (firstupdate) {
             for (int i = 0; i < 2; i++)
             {
