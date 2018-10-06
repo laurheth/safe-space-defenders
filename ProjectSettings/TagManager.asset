@@ -8,6 +8,8 @@ TagManager:
   - EnemyUnit
   - CharSelector
   - EffectCanvas
+  - DifficultySlider
+  - Cursor
   layers:
   - Default
   - TransparentFX
@@ -18,7 +20,7 @@ TagManager:
   - 
   - 
   - Entity
-  - 
+  - Walls
   - 
   - 
   - 

@@ -126,7 +126,7 @@ GameObject:
   - component: {fileID: 154680672}
   m_Layer: 0
   m_Name: MouseSelection
-  m_TagString: Untagged
+  m_TagString: Cursor
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -160,12 +160,14 @@ MonoBehaviour:
   maxdist: 20
   actMenu: {fileID: 1726665265}
   maxenemies: 20
+  maxatonce: 0
   winMsg: {fileID: 1041462166}
   loseMsg: {fileID: 1279045151}
   occupied: {fileID: 1884105175}
   bounds:
   - {x: -12, y: -7, z: 0}
   - {x: -2, y: -2, z: 0}
+  difficultyincreaserate: 0
 --- !u!212 &154680671
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -853,7 +855,7 @@ GameObject:
   - component: {fileID: 716627291}
   - component: {fileID: 716627294}
   - component: {fileID: 716627292}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: CollisionLayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}

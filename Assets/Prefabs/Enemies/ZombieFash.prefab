@@ -380,7 +380,7 @@ MonoBehaviour:
   movesPerTurn: 2
   movesLeft: 0
   sounds:
-  - {fileID: 8300000, guid: 2dc16e8c721364642b5b0692db7af6f0, type: 3}
+  - {fileID: 8300000, guid: b8dda2c1ac55241d3bf9582df618a6fa, type: 3}
   - {fileID: 8300000, guid: d9f9564342718494ea61b58e3a7ad057, type: 3}
   damageresistance: 0
   adjacency: 2

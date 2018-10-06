@@ -257,11 +257,13 @@ MonoBehaviour:
     m_LineSpacing: 1
   m_Text: 'Instructions:
 
+    Move camera with WASD & scrollwheel!
+
     Switch characters with the shift key!
 
-    Switch attacks with the alt key!
+    Switch attacks with the alt key! Point and click to give orders!
 
-    Point and click to give orders!
+    Stand together for solidarity bonuses! Surround foes for surrounding bonuses!
 
     PROTECT THE SAFE SPACE'
 --- !u!222 &874969939

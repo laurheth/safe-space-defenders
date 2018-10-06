@@ -26,6 +26,7 @@ public class Cursor : MonoBehaviour {
     List<EnemyUnit> EnemyUnits;
     public GameObject actMenu;
     public int maxenemies;
+    public int maxatonce;
     ActionMenu actionMenu;
     int enemyid;
     GameObject cam;
@@ -37,12 +38,19 @@ public class Cursor : MonoBehaviour {
     Vector3 newcampos;
     float cx, cy, cz;
     float restartcounter;
-    int difficulty;
+    public float difficulty;
+    public float difficultyincreaserate;
     bool firstupdate;
     //bool added
     Unit.Action currentAction;
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    private void Awake()
+    {
+        difficultyincreaserate = 1;
+        maxatonce = 6;
+        maxenemies = 20;
+    }
+    void Start () {
         restartcounter = 0;
         difficulty = 1;
 //occupied.
@@ -93,8 +101,8 @@ public class Cursor : MonoBehaviour {
         if (firstupdate) {
             for (int i = 0; i < 2; i++)
             {
-                difficulty++;
-                gridController.AddPod(difficulty,true);
+                difficulty+=difficultyincreaserate;
+                gridController.AddPod(Mathf.FloorToInt(difficulty),true);
             }
 
             /*EnemyUnits.Clear();
@@ -148,11 +156,11 @@ public class Cursor : MonoBehaviour {
             if (addnew) {
                 addnew = false;
                 gridController.GenAIMap();
-                if (gridController.addedfoes-gridController.defeatedfoes > 6 || gridController.addedfoes>maxenemies) {
+                if (gridController.addedfoes-gridController.defeatedfoes > maxatonce || gridController.addedfoes>maxenemies) {
                     return;
                 }
-                difficulty++;
-                gridController.AddPod(difficulty);
+                difficulty+=difficultyincreaserate;
+                gridController.AddPod(Mathf.FloorToInt(difficulty));
                 //gridController.GenAIMap();
             }
             if (recalcresist)

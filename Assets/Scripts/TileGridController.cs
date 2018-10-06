@@ -203,31 +203,42 @@ public class TileGridController : MonoBehaviour
 
     public bool CheckLine(Vector3Int startPos_w, Vector3Int endPos_w, int maxdist = 20, bool checkentities = false)
     {
-        Vector3Int offset = new Vector3Int(xmin, ymin, 0);
+        Vector3 offset = new Vector3(0.5f, 0.5f, 0);
+        Vector3 startPos = grid.CellToWorld(startPos_w)+offset;
+        Vector3 endPos = grid.CellToWorld(endPos_w)+offset;
+        startPos[2] = 0;
+        endPos[2] = 0;
+        if ((startPos-endPos).magnitude > maxdist) { return true; }
+        Debug.Log("started:"+startPos);
+        Debug.Log("ended:"+endPos);
+        RaycastHit2D hit2D = Physics2D.Linecast(startPos, endPos, LayerMask.GetMask("Walls"));
+        if (hit2D) { return true; }
+        return false;
+        /*Vector3Int offset = new Vector3Int(xmin, ymin, 0);
         Vector3Int startPos = startPos_w - offset;
         startPos[2] = 0;
 
         Vector3Int endPos = endPos_w - offset;
         endPos[2] = 0;
         Vector3 checkPos = startPos_w - offset;
-        Vector3 step = (new Vector3(endPos_w.x - startPos_w.x,
-                                   endPos_w.y - startPos_w.y,
-                                    endPos_w.z - startPos_w.z)).normalized;
+        Vector3 step = (new Vector3(endPos.x - startPos.x,
+                                   endPos.y - startPos.y,
+                                    0)).normalized;
         if ((startPos - endPos).magnitude > maxdist) { return true; }
         int i, j;
         int breaker = 0;
-        while (Vector3Int.RoundToInt(checkPos) != endPos && breaker < maxdist)
+        while (Vector3Int.FloorToInt(checkPos) != endPos && breaker < maxdist)
         {
             breaker++;
             checkPos += step;
             i = Mathf.RoundToInt(checkPos.x);
             j = Mathf.RoundToInt(checkPos.y);
-            //Debug.Log(checkPos + " " + passable[i, j]);
+            Debug.Log(checkPos+offset + " " + passable[i, j]);
             if (i == startPos.x && j == startPos.y) { continue; }
             if (!passable[i, j]) { return true; }
             if (checkentities && HasObj(i + xmin, j + ymin)) { return true; }
         }
-        return false;
+        return false;*/
     }
     // just grab everything within a circle; worry about the details later
     public List<Vector3> availablesquares(Vector3Int pos, int dist) {
@@ -660,6 +671,7 @@ public class TileGridController : MonoBehaviour
             startpos[2] = trans.position[2];
             if ((trans.position-startpos).magnitude<=range)
             {
+                //toReturn.Add(trans);
                 if (!CheckLine(startpos_w, Vector3Int.FloorToInt(trans.position), range))
                 {
                     toReturn.Add(trans);

@@ -27,6 +27,9 @@ public class CharSelectButton : MonoBehaviour {
             thischar.gameObject.transform.parent = null;
         }*/
         // Load main scene
+
+        GameObject diffslider = GameObject.FindGameObjectWithTag("DifficultySlider");
+        float difficultyfactor = diffslider.GetComponent<Slider>().value;
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("MainGame");
 
         while (!asyncLoad.isDone) {
@@ -39,6 +42,13 @@ public class CharSelectButton : MonoBehaviour {
             chars[i].ApplyDetails(units[i].GetComponent<Unit>());
             //Destroy(chars[i].gameObject);
         }
+
+        // Apply difficulty
+        Cursor cursor=GameObject.FindGameObjectWithTag("Cursor").GetComponent<Cursor>();
+        cursor.difficultyincreaserate = Mathf.Max(Mathf.Pow(difficultyfactor,2),0.5f);
+        cursor.maxatonce = Mathf.Max(2,Mathf.CeilToInt(difficultyfactor*cursor.maxatonce));
+        cursor.maxenemies +=  Mathf.CeilToInt((cursor.maxenemies/2)*(difficultyfactor-1));
+
         Destroy(transform.parent.gameObject);
     }
 }
