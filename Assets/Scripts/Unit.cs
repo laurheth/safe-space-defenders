@@ -128,10 +128,10 @@ public class Unit : MonoBehaviour
         movesLeft = movesPerTurn;
         if (bonus > 0) { bonus--; }
         else if (bonus < 0) { bonus++; }
-        if (bonus > 5) { bonus--; }
-        else if (bonus < -5) { bonus++; }
-        if (bonus > 10) { bonus--; }
-        else if (bonus < -10) { bonus++; }
+        if (bonus > 4) { bonus--; }
+        else if (bonus < -4) { bonus++; }
+        if (bonus > 8) { bonus--; }
+        else if (bonus < -8) { bonus++; }
     }
 
     public void CalcResistance(bool recursive=false) {

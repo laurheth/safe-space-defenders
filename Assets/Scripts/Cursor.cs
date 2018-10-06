@@ -22,6 +22,7 @@ public class Cursor : MonoBehaviour {
     //bool snaptoentity;
     SpriteRenderer srend;
     List<Vector3Int> linesteps;
+    List<Vector3Int> attackarealine;
     List<Unit> PlayerUnits;
     List<EnemyUnit> EnemyUnits;
     public GameObject actMenu;
@@ -68,6 +69,7 @@ public class Cursor : MonoBehaviour {
         actionMenu = actMenu.GetComponent<ActionMenu>();
         validpath = false;
         linesteps = new List<Vector3Int>();
+        attackarealine = new List<Vector3Int>();
         line = GetComponent<LineRenderer>();
         gridController = transform.parent.gameObject.GetComponent<TileGridController>();
 
@@ -271,6 +273,7 @@ public class Cursor : MonoBehaviour {
                 if (unit != null && currentAction != null && currentUnit.readyToMove()) {
                     srend.color = Color.cyan;
                     linesteps.Clear();
+                    attackarealine.Clear();
                     //Debug.Log("Valid pos?");
                     // Define path. Getpath does pathfinding (movement + melee)
                     // Raycast otherwise
@@ -283,7 +286,29 @@ public class Cursor : MonoBehaviour {
                             if (!gridController.CheckLine(Vector3Int.FloorToInt(unit.transform.position),
                                                    newpos,maxdist)) {
                                 linesteps.Add(Vector3Int.FloorToInt(unit.transform.position));
+
                                 linesteps.Add(newpos);
+                                float range2 = currentAction.GetRange2();
+                                float range = currentAction.GetRange();
+                                if (currentAction.GetActType() == Unit.ActType.Cone) {
+                                    Vector3 direction = ((linesteps[1] - linesteps[0]) + Vector3.zero);//.normalized;
+                                    direction[2] = 0;
+                                    direction = direction.normalized;
+                                    Vector3 perpdir = new Vector3(direction[1], -direction[0]);
+                                    attackarealine.Add(linesteps[0]);
+                                    attackarealine.Add(Vector3Int.RoundToInt(linesteps[0] + direction * range + perpdir * range2 / 2));
+                                    attackarealine.Add(Vector3Int.RoundToInt(linesteps[0] + direction * range - perpdir * range2 / 2));
+                                    attackarealine.Add(linesteps[0]);
+                                }
+                                else if (currentAction.GetActType() == Unit.ActType.Grenade)
+                                {
+                                    //float anglesteps=
+                                    for (int i = 0; i < 9;i++) {
+                                        attackarealine.Add(Vector3Int.RoundToInt(
+                                            newpos + range2 * (Quaternion.Euler(0, 0, i * 45) * Vector3.right)
+                                        ));
+                                    }
+                                }
                             }
                             break;
                         case Unit.ActType.Melee:
@@ -301,10 +326,21 @@ public class Cursor : MonoBehaviour {
                     {
                         
                         line.enabled = true;
-                        line.positionCount = linesteps.Count;
-                        for (int i = 0; i < linesteps.Count; i++)
+                        if (attackarealine.Count > 0)
                         {
-                            line.SetPosition(i, linesteps[i]+offset);
+                            line.positionCount = attackarealine.Count;
+                            for (int i = 0; i < attackarealine.Count; i++)
+                            {
+                                line.SetPosition(i, attackarealine[i] + offset);
+                            }
+                        }
+                        else
+                        {
+                            line.positionCount = linesteps.Count;
+                            for (int i = 0; i < linesteps.Count; i++)
+                            {
+                                line.SetPosition(i, linesteps[i] + offset);
+                            }
                         }
                         validpath = true;
                     }
