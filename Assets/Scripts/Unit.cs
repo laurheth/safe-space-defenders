@@ -128,6 +128,10 @@ public class Unit : MonoBehaviour
         movesLeft = movesPerTurn;
         if (bonus > 0) { bonus--; }
         else if (bonus < 0) { bonus++; }
+        if (bonus > 5) { bonus--; }
+        else if (bonus < -5) { bonus++; }
+        if (bonus > 10) { bonus--; }
+        else if (bonus < -10) { bonus++; }
     }
 
     public void CalcResistance(bool recursive=false) {
@@ -190,13 +194,7 @@ public class Unit : MonoBehaviour
     }
 
     public void SetBonus(int newbonus) {
-        if (newbonus > 0)
-        {
-            bonus = Mathf.Min(4,bonus+newbonus);
-        }
-        else if (newbonus<0) {
-            bonus = Mathf.Max(-4, bonus + newbonus);
-        }
+        bonus += newbonus;
     }
 
     public enum ActType { Movement, Melee, Targetted, Cone, Grenade };
@@ -213,8 +211,10 @@ public class Unit : MonoBehaviour
         Color actioncolor;
         string attacksound;
         int sndclip;
-        public Action(string nom, int rng, ActType actType, int dmg, int rng2, string tg, string effsnd,Color clr,int hexdmg=0,int newsndclip=0) {
+        bool repeatsnd;
+        public Action(string nom, int rng, ActType actType, int dmg, int rng2, string tg, string effsnd,Color clr,int hexdmg=0,int newsndclip=0, bool dorepeats=false) {
             sndclip = newsndclip;
+            repeatsnd = dorepeats;
             menuName = nom;
             range = rng;
             hexdamage = hexdmg;
@@ -230,6 +230,9 @@ public class Unit : MonoBehaviour
             type = actType;
             damage = dmg;
             tagspecific = tg;
+        }
+        public bool Repeats() {
+            return repeatsnd;
         }
         public int GetSoundClip() {
             return sndclip;
@@ -344,6 +347,7 @@ public class Unit : MonoBehaviour
         Vector3 direction;
         Vector3 location;
         float distance;
+        bool firstsndplay = true;
         if (transes!=null && transes.Count>0) {
             foreach (Transform trans in transes)
             {
@@ -378,7 +382,11 @@ public class Unit : MonoBehaviour
                 else {
                     effectcanvas.transform.position = location;
                 }
-                sndsource.PlayOneShot(sounds[todo.GetSoundClip()]);
+                if (firstsndplay || todo.Repeats())
+                {
+                    sndsource.PlayOneShot(sounds[todo.GetSoundClip()]);
+                    firstsndplay = false;
+                }
                 distance = 0.5f;
                 while (distance>0) {
                     distance -= Time.deltaTime;

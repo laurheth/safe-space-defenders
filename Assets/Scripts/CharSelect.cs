@@ -87,8 +87,8 @@ public class CharSelect : MonoBehaviour {
                 morale = 8;
                 move = 6;
                 actions.Add(new Unit.Action("Move", move, Unit.ActType.Movement, 0,-1,"","",Color.white));
-                actions.Add(new Unit.Action("Blow vuvuzela", 6, Unit.ActType.Cone, 4, 6, "EnemyUnit","DOOT!",Color.white,0,4));
-                actions.Add(new Unit.Action("Rousing toot", 6, Unit.ActType.Cone, 3, 6, "Unit","TOOT TOOT!",Color.cyan,0,4));
+                actions.Add(new Unit.Action("Blow vuvuzela", 6, Unit.ActType.Cone, 4, 6, "EnemyUnit","DOOT!",Color.white,0,4,true));
+                actions.Add(new Unit.Action("Rousing toot", 6, Unit.ActType.Cone, 3, 6, "Unit","TOOT TOOT!",Color.cyan,1,4,true));
                 actions.Add(new Unit.Action("Vuvuzela Duelist", move, Unit.ActType.Melee, 6, 6, "EnemyUnit","Vuvuzela THWACK!",Color.white,0,11));
                 adjacency = 1;
                 break;
@@ -121,13 +121,13 @@ public class CharSelect : MonoBehaviour {
                 move = 6;
                 actions.Add(new Unit.Action("Move", move, Unit.ActType.Movement, 0, -1, "", "", Color.white));
                 actions.Add(new Unit.Action("Suns out guns out", 10, Unit.ActType.Targetted, 4, -1, "EnemyUnit", "*FLEXES* :)", Color.white,0,10));
-                actions.Add(new Unit.Action("Bear hug", move, Unit.ActType.Melee, 4, -1, "Unit", "BEAR HUG!! ^.^", Color.cyan,0,0));
+                actions.Add(new Unit.Action("Bear hug", move, Unit.ActType.Melee, 4, -1, "Unit", "BEAR HUG!! ^.^", Color.cyan,1,0));
                 actions.Add(new Unit.Action("Arm wrestle", move, Unit.ActType.Melee, 6, -1, "EnemyUnit", "Do you even lift, bro :)?", Color.white,0,5));
                 adjacency = 1;
                 break;
             case "Lumberdyke":
                 infotext.text = "Skills:\nCone of sawdust +1\n" +
-                    "Chop wood +3\nWood thwack +5\n";
+                    "Chop wood +2\nWood thwack +5\n";
                 img.sprite = sprites[0];
                 img.rectTransform.sizeDelta = new Vector3(32, 64);
                 imgdetails.gameObject.SetActive(true);
@@ -136,7 +136,7 @@ public class CharSelect : MonoBehaviour {
                 move = 6;
                 actions.Add(new Unit.Action("Move", move, Unit.ActType.Movement, 0, -1, "", "", Color.white));
                 actions.Add(new Unit.Action("Cone of sawdust", 6, Unit.ActType.Cone, 1, 6, "EnemyUnit", "Sawdust in eyes!! X.X;;", Color.yellow,-1,9));
-                actions.Add(new Unit.Action("Chop wood impressively", 0, Unit.ActType.Grenade, 3, 10, "Unit", "Chop!! ;D", Color.cyan,0,3));
+                actions.Add(new Unit.Action("Chop wood impressively", 0, Unit.ActType.Grenade, 2, 10, "Unit", "Chop!! ;D", Color.cyan,1,3,true));
                 actions.Add(new Unit.Action("Wooden thwack", move, Unit.ActType.Melee, 5, 6, "EnemyUnit", "Wooden THWACK!", Color.white,0,11));
                 adjacency = 1;
                 break;
@@ -150,7 +150,7 @@ public class CharSelect : MonoBehaviour {
                 morale = 4;
                 move = 10;
                 actions.Add(new Unit.Action("Move", move, Unit.ActType.Movement, 0,-1,"","",Color.white));
-                actions.Add(new Unit.Action("Bork", 0, Unit.ActType.Grenade, 4,10,"Unit","BORK! :D",Color.cyan,1,2));
+                actions.Add(new Unit.Action("Bork", 0, Unit.ActType.Grenade, 4,10,"Unit","BORK! :D",Color.cyan,1,2,true));
                 actions.Add(new Unit.Action("Growl", 10, Unit.ActType.Targetted, 4, -1, "EnemyUnit","GRRR! >:F",Color.white,0,7));
                 adjacency = 2;
                 //actions.Add(new Action("Strike a pose", 0, ActType.Grenade, 10, 20));

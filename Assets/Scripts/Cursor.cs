@@ -27,6 +27,7 @@ public class Cursor : MonoBehaviour {
     public GameObject actMenu;
     public int maxenemies;
     public int maxatonce;
+    bool occupiedbool;
     ActionMenu actionMenu;
     int enemyid;
     GameObject cam;
@@ -154,6 +155,20 @@ public class Cursor : MonoBehaviour {
 
         if (playerturn==false) {
             if (addnew) {
+
+                if (occupiedbool)
+                {
+                    occupied.SetActive(true);
+                    foreach (Unit playerunit in PlayerUnits)
+                    {
+                        playerunit.Damage(1, Vector3.positiveInfinity, "EnemyUnit");
+                    }
+                }
+                else
+                {
+                    occupied.SetActive(false);
+                }
+
                 addnew = false;
                 gridController.GenAIMap();
                 if (gridController.addedfoes-gridController.defeatedfoes > maxatonce || gridController.addedfoes>maxenemies) {
@@ -454,24 +469,20 @@ public class Cursor : MonoBehaviour {
             }
         }
         EnemyUnits.Clear();
-        bool occupiedbool=false;;
+        occupiedbool=false;;
         foreach (GameObject obj in GameObject.FindGameObjectsWithTag("EnemyUnit"))
         {
-            EnemyUnits.Add(obj.GetComponent<EnemyUnit>());
-            if (obj.transform.position.x > bounds[0].x && obj.transform.position.x < bounds[1].x &&
-                obj.transform.position.y > bounds[0].y && obj.transform.position.y < bounds[1].y) {
-                occupiedbool = true;
+            if (obj.GetComponent<EnemyUnit>().Morale > 0)
+            {
+                EnemyUnits.Add(obj.GetComponent<EnemyUnit>());
+                if (obj.transform.position.x > bounds[0].x && obj.transform.position.x < bounds[1].x &&
+                    obj.transform.position.y > bounds[0].y && obj.transform.position.y < bounds[1].y)
+                {
+                    occupiedbool = true;
+                }
             }
         }
-        if (occupiedbool) {
-            occupied.SetActive(true);
-            foreach (Unit playerunit in PlayerUnits) {
-                playerunit.Damage(1, Vector3.positiveInfinity, "EnemyUnit");
-            }
-        }
-        else {
-            occupied.SetActive(false);
-        }
+
         //if (EnemyUnits.Count == 0) { won = true; }
         playerturn = false;
         addnew = true;
