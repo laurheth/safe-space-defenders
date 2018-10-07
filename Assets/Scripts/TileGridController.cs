@@ -15,6 +15,7 @@ public class TileGridController : MonoBehaviour
     public int xmax, ymax;
     bool[,] passable;
     bool[,] nowalking;
+    bool[,] hasobjmap;
     float[,] pathcache;
     float[,] AIPlanMap;
     public int defeatedfoes;
@@ -48,6 +49,7 @@ public class TileGridController : MonoBehaviour
         ymax = collisionMap.cellBounds.yMax;
         passable = new bool[xsize, ysize];
         nowalking = new bool[xsize, ysize];
+        hasobjmap=new bool[xsize, ysize];
         pathcache = new float[xsize, ysize];
         AIPlanMap = new float[xsize, ysize];
         for (int i = 0; i < xsize; i++)
@@ -269,12 +271,14 @@ public class TileGridController : MonoBehaviour
             {
                 for (j = 0; j < ysize; j++)
                 {
+                    hasobjmap[i, j] = false;
                     AIPlanMap[i, j] = xsize*ysize;
                 }
             }
             // Add every player unit into the AI map
             foreach (Transform trans in Entities)
             {
+                hasobjmap[Mathf.FloorToInt(trans.position.x) - xmin, Mathf.FloorToInt(trans.position.y) - ymin] = true;
                 if (trans == null || trans.tag == "EnemyUnit")
                 {
                     continue;
@@ -306,7 +310,8 @@ public class TileGridController : MonoBehaviour
                     //if (Mathf.Approximately(pathcache[i,j],currentdist)) {
                     //Debug.Log(i+" "+j+" "+AIPlanMap[i, j]);
 
-                    if (!passable[i, j] || (HasObj(i + xmin, j + ymin)) || !nowalking[i, j])
+                    //if (!passable[i, j] || (HasObj(i + xmin, j + ymin)) || !nowalking[i, j])
+                    if (!passable[i, j] || hasobjmap[i,j] || !nowalking[i, j])
                     {
                         //Debug.Log(AIPlanMap[i, j]);
                         continue;
@@ -315,8 +320,9 @@ public class TileGridController : MonoBehaviour
                     {
                         for (jj = -1; jj < 2; jj++)
                         {
-                            
-                            steplength = Mathf.Sqrt(Mathf.Pow(ii, 2) + Mathf.Pow(jj, 2));
+                            if (ii == 0 || jj == 0) { steplength = 1; }
+                            else { steplength = 1.4142f; }
+                            //steplength = Mathf.Sqrt(Mathf.Pow(ii, 2) + Mathf.Pow(jj, 2));
 
                             if (AIPlanMap[i + ii, j + jj] + steplength + 0.0001 < AIPlanMap[i, j])
                             {
@@ -442,7 +448,9 @@ public class TileGridController : MonoBehaviour
                             {
                                 continue;
                             }
-                            steplength = Mathf.Sqrt(Mathf.Pow(ii, 2) + Mathf.Pow(jj, 2));
+                            //steplength = Mathf.Sqrt(Mathf.Pow(ii, 2) + Mathf.Pow(jj, 2));
+                            if (ii == 0 || jj == 0) { steplength = 1; }
+                            else { steplength = 1.4142f; }
                             if (pathcache[i + ii, j + jj] + steplength+0.0001 < pathcache[i,j])
                             {
                                 pathcache[i, j] = pathcache[i+ii, j+jj] + steplength;
@@ -471,13 +479,16 @@ public class TileGridController : MonoBehaviour
             {
 
                 dists[i, j] = maxDist;
+                hasobjmap[i, j] = false;
 
             }
         }
         Vector3Int offset = new Vector3Int(xmin, ymin, 0);
         Vector3Int startPos = startPos_w - offset;
         Vector3Int endPos = endPos_w - offset;
-
+        foreach (Transform trans in Entities) {
+            hasobjmap[Mathf.FloorToInt(trans.position.x) - xmin, Mathf.FloorToInt(trans.position.y) - ymin] = true;
+        }
         //Debug.Log(startPos + " " + endPos + " " + offset);
         if (!leavemap)
         {
@@ -509,7 +520,8 @@ public class TileGridController : MonoBehaviour
                 {
                     if (i != startPos.x || j != startPos.y)
                     {
-                        if (!passable[i, j] || (!leavemap && HasObj(i + xmin, j + ymin)) || !nowalking[i,j])
+                        //if (!passable[i, j] || (!leavemap && HasObj(i + xmin, j + ymin)) || !nowalking[i,j])
+                        if (!passable[i, j] || (!leavemap && hasobjmap[i,j]) || !nowalking[i, j])
                         {
                             continue;
                         }
@@ -520,7 +532,9 @@ public class TileGridController : MonoBehaviour
                     {
                         for (jj = -1; jj < 2; jj++)
                         {
-                            steplength = Mathf.Sqrt(Mathf.Pow(ii, 2) + Mathf.Pow(jj, 2));
+                            if (ii == 0 || jj == 0) { steplength = 1; }
+                            else { steplength = 1.4142f; }
+                            //steplength = Mathf.Sqrt(Mathf.Pow(ii, 2) + Mathf.Pow(jj, 2));
                             if (dists[i + ii, j + jj] + steplength < currentDist)
                             {
                                 dists[i, j] = dists[i + ii, j + jj] + steplength;
