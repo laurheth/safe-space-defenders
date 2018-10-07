@@ -307,11 +307,12 @@ public class Unit : MonoBehaviour
         transform.position = actualpos;
     }*/
     public IEnumerator QueueAction(Action todo, Vector3Int target) {
+        animating = true;
         //Action todo_updated = new Action(todo.GetName)
         yield return null;
         movesLeft -= 2;
         Debug.Log("Action Queued");
-        while (!readyToMove()) {
+        while (steps.Count > 0) {
             //Debug.Log("Waiting...");
             yield return null;
         }
